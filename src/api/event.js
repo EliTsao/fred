@@ -1,8 +1,8 @@
 import request from '@/utils/request'
 
-export function data() {
+export function lineChart(token) {
   return request({
-    url: '/lineChart',
+    url: '/event',
     method: 'get'
   })
 }

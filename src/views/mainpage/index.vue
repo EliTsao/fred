@@ -22,7 +22,45 @@
           </div>
 
           <div class="zhiling">
-            <span>机器人指令</span>
+            <el-row>
+              <el-button @click="walkDirection(1)">前进</el-button>
+            </el-row>
+            <el-row>
+              <el-button @click="walkDirection(0)">停止</el-button>
+            </el-row>
+            <el-row>
+              <el-button @click="walkDirection(2)">后退</el-button>
+            </el-row>
+            <el-row>
+              <el-button @click="speed">加档</el-button>
+            </el-row>
+            <el-row>
+              <el-button @click="speed">10</el-button>
+            </el-row>
+            <el-row>
+              <el-button @click="speed">减档</el-button>
+            </el-row>
+            <el-row>
+              <el-button>连续</el-button>
+            </el-row>
+            <el-row>
+              <el-button>抓图</el-button>
+            </el-row>
+            <el-row>
+              <el-button>测温</el-button>
+            </el-row>
+            <el-row>
+              <el-button @click="loadCable">装载</el-button>
+            </el-row>
+            <el-row>
+              <el-button>升滑台</el-button>
+            </el-row>
+            <el-row>
+              <el-button>修补</el-button>
+            </el-row>
+            <el-row>
+              <el-button>降滑台</el-button>
+            </el-row>
           </div>
         </div>
 
@@ -34,14 +72,46 @@
 </template>
 
 <script>
+import axios from 'axios'
 import { mapGetters } from 'vuex'
-
 export default {
   name: 'Mainpage',
+  data() {
+    return {
+      dierection: '',
+      serialNumber: ''
+    }
+  },
   computed: {
     ...mapGetters([
       'name'
     ])
+  },
+  methods: {
+    walkDirection(data) {
+      axios.put('http://localhost:8080/command/walkDirection/', {
+        data: {
+          direction: data,
+          serialNumber: '2'
+        }
+      }
+      )
+    },
+    loadCable(data) {
+      axios.put('http://localhost:8080/command/loadCable/', {
+        data: {
+          serialNumber: '1'
+        }
+      })
+    },
+    speed(data) {
+      axios.put('http://localhost:8080/command/loadCable/', {
+        data: {
+          serialNumber: '3'
+        }
+      })
+    }
+
   }
 }
 </script>

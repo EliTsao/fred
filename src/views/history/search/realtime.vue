@@ -63,6 +63,7 @@
 </template>
 
 <script>
+import { robotData } from '@/api/history'
 import { getPageTab2 } from '@/api/table'
 export default {
   filters: {
