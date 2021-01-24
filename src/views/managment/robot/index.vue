@@ -5,12 +5,6 @@
         <span>机器人管理</span>
       </div>
       <div class="searchDiv">
-        <el-input
-          v-model="sch_order"
-          type="text"
-          placeholder="请输入用户ID或账号"
-          class="width1"
-        />
         <el-select
           v-model="sch_status"
           clearable
@@ -29,46 +23,22 @@
           icon="el-icon-search"
           @click="searchTab()"
         >搜索</el-button>
-        <el-button
-          type="primary"
-          icon="el-icon-circle-plus-outline"
-          @click="addTab"
-        >添加</el-button>
       </div>
       <el-table :data="tableData" border stripe>
-        <el-table-column prop="id" label="ID" width="60" />
-        <el-table-column prop="order" label="用户账号" />
-        <el-table-column prop="time" label="姓名" />
-        <el-table-column prop="authority" label="权限" width="210"/>
-        <el-table-column prop="phone" label="联系电话" />
+        <el-table-column prop="robotName" label="机器人编号" />
+        <el-table-column prop="serialNmae" label="机器人序列号" />
+        <el-table-column prop="adress" label="所在位置" />
+        <el-table-column prop="walkDirection" label="行走方向" />
+        <el-table-column prop="power" label="剩余电量" />
+        <el-table-column prop="network" label="在线情况" />
+        <el-table-column prop="speed" label="速度" />
+        <el-table-column prop="walkPattern" label="行走状态" />
+        <el-table-column prop="lineName" label="所在线路" />
         <el-table-column prop="status" label="状态" width="90">
           <template slot-scope="scope">
             <el-tag :type="scope.row.status | tagClass">{{
-                scope.row.status | statusText
-              }}</el-tag>
-          </template>
-        </el-table-column>
-        <el-table-column label="操作" width="300">
-          <template slot-scope="scope">
-            <el-button
-              type="primary"
-              @click="editTable(scope.$index, scope.row)"
-            >编辑</el-button>
-            <el-button
-              type="warning"
-              :disabled="scope.row.status!==1"
-              @click="toConfirm(scope.row)"
-            >审核</el-button>
-            <el-button
-              type="success"
-              :disabled="scope.row.status!==2"
-              @click="toSuccess(scope.row)"
-            >完成</el-button>
-            <el-button
-              type="danger"
-              :disabled="scope.row.status===3"
-              @click="toDelete(scope.row)"
-            >取消</el-button>
+              scope.row.status | statusText
+            }}</el-tag>
           </template>
         </el-table-column>
       </el-table>
@@ -84,68 +54,6 @@
         @current-change="handlePage"
       />
     </el-card>
-    <el-dialog title="订单修改" :visible.sync="diaIsShow" class="diaForm">
-      <el-form
-        ref="diaForm"
-        :model="formData"
-        :rules="rules"
-        label-width="140px"
-      >
-        <el-form-item label="订单号">
-          <el-input
-            v-model="formData.order"
-            type="text"
-            :disabled="true"
-          />
-        </el-form-item>
-        <el-form-item label="订单时间" prop="time">
-          <el-date-picker
-            v-model="formData.time"
-            type="datetime"
-            placeholder="选择日期时间"
-            value-format="yyyy-MM-dd HH:mm:ss"
-          />
-        </el-form-item>
-        <el-form-item label="配送地址" prop="address">
-          <el-input
-            v-model="formData.address"
-            type="text"
-            placeholder="请输入地址"
-          />
-        </el-form-item>
-        <el-form-item label="联系电话" prop="phone">
-          <el-input
-            v-model="formData.phone"
-            type="text"
-            placeholder="请输入电话"
-          />
-        </el-form-item>
-        <el-form-item label="配送员" prop="name">
-          <el-input
-            v-model="formData.name"
-            type="text"
-            placeholder="请输入姓名"
-          />
-        </el-form-item>
-        <el-form-item label="状态" prop="status">
-          <el-select v-model="formData.status" placeholde="请选择状态">
-            <el-option
-              v-for="item in options"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value"
-            />
-          </el-select>
-        </el-form-item>
-        <el-form-item>
-          <el-button
-            type="primary"
-            @click="changeTab('diaForm', editType)"
-          >确认</el-button>
-          <el-button @click="diaIsShow = false">取消</el-button>
-        </el-form-item>
-      </el-form>
-    </el-dialog>
   </div>
 </template>
 
@@ -199,24 +107,7 @@ export default {
         { label: '已完成', value: 0 },
         { label: '已取消', value: 3 }
       ],
-      rowIndex: 0,
-      rules: {
-        // order: [{ required: true, message: '请输入订单号', trigger: 'blur' }],
-        time: [
-          {
-            // type: 'datetime',
-            required: true,
-            message: '请输入时间',
-            trigger: 'change'
-          }
-        ],
-        address: [{ required: true, message: '请输入地址', trigger: 'blur' }],
-        phone: [{ required: true, message: '请输入联系方式', trigger: 'blur' }],
-        name: [{ required: true, message: '请输入姓名', trigger: 'blur' }],
-        status: [
-          { required: true, message: '请选择订单状态', trigger: 'change' }
-        ]
-      }
+      rowIndex: 0
     }
   },
   created() {
@@ -273,85 +164,6 @@ export default {
       this.currentPage = 1
       this.pageSize = 10
       this.getPageData()
-    },
-    // add
-    addTab() {
-      this.formData = {}
-      this.diaIsShow = true
-      this.formData.order = (Math.random() * 10e18).toString()
-      this.formData.id = this.allList.length + 1
-      this.editType = 'add'
-      this.$nextTick(() => {
-        this.$refs.diaForm.clearValidate()
-      })
-    },
-    // 审核
-    toConfirm(row) {
-      row.status = 2
-      this.$notify({
-        title: '成功',
-        message: '审核提交成功',
-        type: 'success'
-      })
-    },
-    // 完成
-    toSuccess(row) {
-      row.status = 0
-      this.$notify({
-        title: '成功',
-        message: '该订单已完成配送',
-        type: 'success'
-      })
-    },
-    // 取消
-    toDelete(row) {
-      row.status = 3
-      this.$notify({
-        title: '成功',
-        message: '已取消该订单',
-        type: 'success'
-      })
-    },
-    // 编辑
-    editTable(index, row) {
-      this.formData = Object.assign({}, row)
-      this.editType = 'update'
-      this.diaIsShow = true
-      this.$nextTick(() => {
-        this.$refs.diaForm.clearValidate()
-      })
-      this.rowIndex = index
-    },
-    changeTab(form, type) {
-      this.$refs[form].validate(valid => {
-        if (valid) {
-          if (type === 'update') {
-            // 改变整个表格数据
-            const start = (this.currentPage - 1) * this.pageSize
-            this.allList[start + this.rowIndex] = Object.assign(
-              {},
-              this.formData
-            )
-            // 解决数组不能通过索引响应数据变化
-            this.$set(
-              this.tableData,
-              this.rowIndex,
-              Object.assign({}, this.formData)
-            )
-            this.$notify({
-              title: '成功',
-              message: '订单已修改成功',
-              type: 'success'
-            })
-          } else {
-            this.tableData.unshift(Object.assign({}, this.formData))
-            this.allList.push(Object.assign({}, this.formData))
-          }
-          this.diaIsShow = false
-        } else {
-          return
-        }
-      })
     }
   }
 }

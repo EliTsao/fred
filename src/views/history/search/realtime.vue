@@ -63,6 +63,7 @@
 </template>
 
 <script>
+import axios from 'axios'
 import { robotData } from '@/api/history'
 export default {
   filters: {
@@ -116,6 +117,12 @@ export default {
     }
   },
   methods: {
+    excelDow(params) {
+      axios.get('/realTimeExcel', {
+        params: {
+        }
+      })
+    },
     handleSize(val) {
       this.pageSize = val
       this.getPageData()

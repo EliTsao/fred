@@ -63,6 +63,7 @@
 </template>
 
 <script>
+import axios from 'axios'
 import { getPageTab2 } from '@/api/table'
 export default {
   filters: {
@@ -139,6 +140,12 @@ export default {
     this._getPageTab2()
   },
   methods: {
+    excelDow(params) {
+      axios.get('/tmData', {
+        params: {
+        }
+      })
+    },
     handleSize(val) {
       this.pageSize = val
       this.getPageData()

@@ -22,8 +22,8 @@ export function logout() {
   return request({
     url: '/vue-admin-template/user/logout',
     method: 'put',
-    data: {
-      username: this.username
+    params: {
+      username: 'admin'
     }
   })
 }

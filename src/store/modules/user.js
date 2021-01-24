@@ -65,7 +65,7 @@ const actions = {
   // },
 
   // user logout
-  logout({ commit, state, userInfo }) {
+  logout({ commit, state }) {
     return new Promise((resolve, reject) => {
       const username = state.name
       logout({ username }, state.token).then(() => {
