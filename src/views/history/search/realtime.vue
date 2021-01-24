@@ -64,7 +64,6 @@
 
 <script>
 import { robotData } from '@/api/history'
-import { getPageTab2 } from '@/api/table'
 export default {
   filters: {
     tagClass(val) {
@@ -112,12 +111,6 @@ export default {
             message: '请输入时间',
             trigger: 'change'
           }
-        ],
-        address: [{ required: true, message: '请输入地址', trigger: 'blur' }],
-        phone: [{ required: true, message: '请输入联系方式', trigger: 'blur' }],
-        name: [{ required: true, message: '请输入姓名', trigger: 'blur' }],
-        status: [
-          { required: true, message: '请选择订单状态', trigger: 'change' }
         ]
       }
     }

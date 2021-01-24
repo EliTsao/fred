@@ -1,8 +1,8 @@
 import request from '@/utils/request'
 
-export function event(params) {
+export function systemMessage(params) {
   return request({
-    url: '/event',
+    url: 'systemMessage',
     method: 'get'
   })
 }

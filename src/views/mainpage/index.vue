@@ -23,13 +23,13 @@
 
           <div class="zhiling">
             <el-row>
-              <el-button @click="walkDirection(1)">前进</el-button>
+              <el-button @click="walkDirection(1)" @mousedown="change(1)">前进</el-button>
             </el-row>
             <el-row>
-              <el-button @click="walkDirection(0)">停止</el-button>
+              <el-button @click="walkDirection(0)" @mousedown="change(0)">停止</el-button>
             </el-row>
             <el-row>
-              <el-button @click="walkDirection(2)">后退</el-button>
+              <el-button @click="walkDirection(2)" @mousedown="change(2)">后退</el-button>
             </el-row>
             <el-row>
               <el-button @click="speed">加档</el-button>
@@ -53,13 +53,13 @@
               <el-button @click="loadCable">装载</el-button>
             </el-row>
             <el-row>
-              <el-button>升滑台</el-button>
+              <el-button @click="postion">升滑台</el-button>
             </el-row>
             <el-row>
-              <el-button>修补</el-button>
+              <el-button @click="fix">修补</el-button>
             </el-row>
             <el-row>
-              <el-button>降滑台</el-button>
+              <el-button @click="postion">降滑台</el-button>
             </el-row>
           </div>
         </div>
@@ -89,24 +89,38 @@ export default {
   },
   methods: {
     walkDirection(data) {
-      axios.put('http://localhost:8080/command/walkDirection/', {
-        data: {
+      axios.get('http://localhost:8080/command/walkDirection/', {
+        params: {
           direction: data,
           serialNumber: '2'
         }
       }
       )
     },
-    loadCable(data) {
-      axios.put('http://localhost:8080/command/loadCable/', {
-        data: {
+    loadCable(params) {
+      axios.get('http://localhost:8080/command/loadCable/', {
+        params: {
           serialNumber: '1'
         }
       })
     },
-    speed(data) {
-      axios.put('http://localhost:8080/command/loadCable/', {
+    speed(params) {
+      axios.get('http://localhost:8080/command/loadCable/', {
         data: {
+          serialNumber: '3'
+        }
+      })
+    },
+    change(params) {
+      axios.get('http://localhost:8080/command/workParten/', {
+        workParten: 2,
+        serialNumber: '1'
+      })
+    },
+    postion(params) {
+      axios.get('http://localhost:8080/command/slidePostion/', {
+        params: {
+          postion: 33,
           serialNumber: '3'
         }
       })

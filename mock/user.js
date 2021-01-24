@@ -72,9 +72,10 @@ module.exports = [
   {
     url: '/vue-admin-template/user/logout',
     type: 'put',
-    response: _ => {
+    response: config => {
+      const { username } = config.body
       return {
-        code: 20000,
+        code: 200,
         data: 'success'
       }
     }

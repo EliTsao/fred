@@ -25,6 +25,9 @@ export function tempertureData(params) {
 export function imageData(params) {
   return request({
     url: '/findImageById',
-    method: 'get'
+    method: 'get',
+    params: {
+
+    }
   })
 }

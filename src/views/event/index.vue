@@ -91,6 +91,11 @@ export default {
   },
   data() {
     return {
+      action: [],
+      endTime: [],
+      startTime: [],
+      type: [],
+      userName: [],
       tableData: [],
       allList: [],
       schArr: [],
