@@ -135,7 +135,7 @@ export default {
     event() {
       event()
         .then(res => {
-          this.allList = res.data.tableList
+          this.allList = res.data.items
           this.schArr = this.allList
           this.getPageData()
           this.total = res.data.total

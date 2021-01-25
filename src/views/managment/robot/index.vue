@@ -58,34 +58,8 @@
 </template>
 
 <script>
-import { getPageTab2 } from '@/api/table'
+import { findAll } from '@/api/robot'
 export default {
-  filters: {
-    statusText(val) {
-      if (val === undefined) return
-      if (val === 0) {
-        return '已完成'
-      } else if (val === 1) {
-        return '待审核'
-      } else if (val === 2) {
-        return '配送中'
-      } else {
-        return '已取消'
-      }
-    },
-    tagClass(val) {
-      if (val === undefined) return
-      if (val === 0) {
-        return 'success'
-      } else if (val === 1) {
-        return 'info'
-      } else if (val === 2) {
-        return 'warning'
-      } else {
-        return 'danger'
-      }
-    }
-  },
   data() {
     return {
       tableData: [],
@@ -111,7 +85,7 @@ export default {
     }
   },
   created() {
-    this._getPageTab2()
+    this.findAll()
   },
   methods: {
     handleSize(val) {
@@ -122,10 +96,10 @@ export default {
       this.currentPage = val
       this.getPageData()
     },
-    _getPageTab2() {
-      getPageTab2()
+    findAll() {
+      findAll()
         .then(res => {
-          this.allList = res.data.tableList
+          this.allList = res.data
           this.schArr = this.allList
           this.getPageData()
           this.total = res.data.total
@@ -138,32 +112,6 @@ export default {
       const start = (this.currentPage - 1) * this.pageSize
       const end = start + this.pageSize
       this.tableData = this.schArr.slice(start, end)
-    },
-    // 查找
-    searchTab() {
-      let arrList = []
-      for (const item of this.allList) {
-        if (
-          this.sch_order.trim() === '' &&
-          this.sch_status === null &&
-          this.sch_date === null
-        ) {
-          arrList = this.allList
-          break
-        } else if (
-          item.order.startsWith(this.sch_order) &&
-          (this.sch_status !== null ? item.status === this.sch_status : true) &&
-          (this.sch_date !== null ? item.time.startsWith(this.sch_date) : true)
-        ) {
-          const obj = Object.assign({}, item)
-          arrList.push(obj)
-        }
-      }
-      this.schArr = arrList
-      this.total = arrList.length
-      this.currentPage = 1
-      this.pageSize = 10
-      this.getPageData()
     }
   }
 }

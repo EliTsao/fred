@@ -15,6 +15,20 @@
           <span>主摄像头</span>
           <div id="wasmPlayer" />
         </div>
+
+        <div class="player-box">
+          <span>热成像图</span>
+          <div id="wasmPlayer" />
+
+        </div><div class="player-box">
+          <span>前轮摄像头</span>
+          <div id="wasmPlayer" />
+        </div>
+
+        <div class="player-box">
+          <span>后轮摄像头</span>
+          <div id="wasmPlayer" />
+        </div>
       </div>
     </div>
 
@@ -51,7 +65,7 @@
           <el-button @click="speed">减档</el-button>
         </el-row>
         <el-row>
-          <el-button>连续</el-button>
+          <el-button @click="lianxu">连续</el-button>
         </el-row>
         <el-row>
           <el-button @click="captureImage">抓图</el-button>
@@ -71,6 +85,7 @@
         <el-row>
           <el-button @click="postion">降滑台</el-button>
         </el-row>
+        <el-row></el-row>
       </div>
     </div>
 
@@ -121,23 +136,20 @@ export default {
       })
     },
     walkDirection(data) {
-      axios.get('http://192.168.31.16:10010/command/walkDirection/', {
-        headers: {
-          'token': window.localStorage['token']
-        },
-        params: {
-          direction: data,
-          serialNumber: '1'
-        }
+      axios.get('http://192.168.31.16:10010/command/walkDirection/1/1', {
+        // params: {
+        //   direction: data,
+        //   serialNumber: '1'
+        // }
       }
       )
     },
     loadCable(params) {
-      axios.get('http://192.168.31.16:10010/command/loadCable/1', {
+      axios.get('http://192.168.31.16:10010/command/loadCable/1/3', {
       })
     },
     speed(params) {
-      axios.get('http://192.168.31.16:10010/command/loadCable/1', {
+      axios.get('http://192.168.31.16:10010/command/speed/1/3', {
       })
     },
     change(params) {
@@ -150,6 +162,11 @@ export default {
     },
     captureImage(params) {
       axios.get('http://192.168.31.16:10010/command/captureImage/1', {
+      })
+    },
+    lianxu(params) {
+      axios.get('http://192.168.31.16:10010/command/walkPattern/1/0', {
+
       })
     },
     detectTemperature(params) {
@@ -190,7 +207,7 @@ export default {
 .three{
   padding: 1em;
   flex-direction: row;
-  height: 800px;
+  height: 1800px;
 
   .zhibo{
     padding:1em;

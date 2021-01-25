@@ -31,9 +31,9 @@ export function findrobot(params) {
   })
 }
 
-export function findall(params) {
+export function findAll(params) {
   return request({
-    url: 'robot/findall',
+    url: 'robot/findAll',
     method: 'get'
   })
 }

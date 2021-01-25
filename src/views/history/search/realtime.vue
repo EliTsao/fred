@@ -71,7 +71,7 @@ import { robotData } from '@/api/history'
 export default {
   data() {
     return {
-      total: 12,
+      total: 0,
       totalPage: 1,
       tableData: [],
       allList: [],
@@ -126,7 +126,7 @@ export default {
     robotData() {
       robotData()
         .then(res => {
-          this.allList = res.data.tableList
+          this.allList = res.data.items
           this.schArr = this.allList
           this.getPageData()
           this.total = res.data.total
@@ -139,32 +139,6 @@ export default {
       const start = (this.currentPage - 1) * this.pageSize
       const end = start + this.pageSize
       this.tableData = this.schArr.slice(start, end)
-    },
-    // 查找
-    searchTab() {
-      let arrList = []
-      for (const item of this.allList) {
-        if (
-          this.sch_order.trim() === '' &&
-          this.sch_status === null &&
-          this.sch_date === null
-        ) {
-          arrList = this.allList
-          break
-        } else if (
-          item.order.startsWith(this.sch_order) &&
-          (this.sch_status !== null ? item.status === this.sch_status : true) &&
-          (this.sch_date !== null ? item.time.startsWith(this.sch_date) : true)
-        ) {
-          const obj = Object.assign({}, item)
-          arrList.push(obj)
-        }
-      }
-      this.schArr = arrList
-      this.total = arrList.length
-      this.currentPage = 1
-      this.pageSize = 10
-      this.getPageData()
     }
   }
 }

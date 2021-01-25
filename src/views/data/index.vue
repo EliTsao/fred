@@ -42,127 +42,42 @@
 </template>
 
 <script>
-import axios from 'axios'
-import echarts from 'echarts'
-import resize from '@/components/Charts/mixins/resize'
-require('echarts/theme/macarons')
+// 引入api
+import charapi from '@/api/data'
+var echarts = require('echarts')
 export default {
-  mixins: [resize],
   data() {
-    return {
-      mycharts: null,
-      shows: 1,
-      date: [],
-      price: [],
-      chartData: {
-        date: [],
-        price: []
-      }
+    // ...省略
+  },
+  watch: {
+    // 数据变化时自动重画，在控制台修改message,会自动重画
+    message: function() {
+      this.draw()
     }
   },
-  mounted() {
-    this.mockData()
-    this.$nextTick().then(() => {
-      this.initEcharts()
-    })
+  mounted () {
+    this.draw()
   },
   methods: {
-    test(params) {
-      axios.get('http://192.168.31.16:10010/lineChart')
+    draw () {
+      let that = this;
+      // 通过Api请求后端接口，返回的结果会自动给resp变量
+      // 因为不需要传参，所以getData()不用写参数
+      charapi.getData().then(function(resp) {
+        // 如果返回状态码是200
+        // eslint-disable-next-line eqeqeq
+        if (resp.data.code == 200) {
+          // 就将数据更改
+          that.option.series.data = resp.data.data;
+        }
+      })
+      const myChart = echarts.init(document.getElementById('main'));
+      myChart.setOption(this.option, true)
     }
-    // mock data
-  //   mockData() {
-  //     let base = +new Date('2019/1/1')
-  //     const oneDay = 24 * 3600 * 1000
-  //     const date = []
-  //     const data = []
-  //     const len = Math.ceil((+new Date() - base) / oneDay)
-  //     for (let i = 0; i < len; i++) {
-  //       const item = new Date(base)
-  //       base += oneDay
-  //       date.push(
-  //         item.getFullYear() +
-  //         '/' +
-  //         (item.getMonth() + 1) +
-  //         '/' +
-  //         item.getDate()
-  //       )
-  //       data.push(Math.floor(Math.random() * (1000 - 500 + 1) + 500))
-  //     }
-  //     this.date = date
-  //     this.price = data
-  //     // this.chartData.date = date
-  //     // this.chartData.price = data
-  //   },
-  //   setChartData(num) {
-  //     let len = this.date.length
-  //     this.chartData.date = this.date.slice(len - num)
-  //     this.chartData.price = this.price.slice(len - num)
-  //     this._setOption(this.chartData)
-  //   },
-  //   initEcharts() {
-  //     this.mycharts = echarts.init(this.$refs.myCharts, 'macarons')
-  //     this.setChartData(10)
-  //     // this._setOption(this.chartData)
-  //   },
-  //   _setOption(chartData) {
-  //     this.mycharts.setOption({
-  //       title: {
-  //         text: '商品价格变动图',
-  //         left: '16'
-  //       },
-  //       tooltip: {
-  //         trigger: 'axis',
-  //         axisPointer: {
-  //           type: 'cross',
-  //           label: {
-  //             background: '#6a7985'
-  //           }
-  //         }
-  //       },
-  //       grid: {
-  //         left: '20',
-  //         right: '20',
-  //         bottom: '3',
-  //         containLabel: true
-  //       },
-  //       xAxis: [
-  //         {
-  //           type: 'category',
-  //           boundaryGap: false,
-  //           data: chartData.date
-  //         }
-  //       ],
-  //       yAxis: [
-  //         {
-  //           type: 'value',
-  //           boundaryGap: [0, '100%']
-  //         }
-  //       ],
-  //       series: [
-  //         {
-  //           name: '商品价格',
-  //           type: 'line',
-  //           areaStyle: {
-  //             color: '#55a8fd',
-  //             opacity: 0.3
-  //           },
-  //           itemStyle: {
-  //             color: '#55a8fd'
-  //           },
-  //           lineStyle: {
-  //             color: '#55a8fd'
-  //           },
-  //           smooth: true,
-  //           data: chartData.price,
-  //           animationDuration: 2800,
-  //           animationEasing: 'quadraticOut'
-  //         }
-  //       ]
-  //     })
-  //   }
-  // }
+
   }
+}
+</script>
 }
 
 </script>

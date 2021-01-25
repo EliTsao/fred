@@ -98,7 +98,7 @@ export default {
   },
   data() {
     return {
-      total: '10',
+      total: '12',
       totalPage: 1,
       items: {
       },
@@ -156,7 +156,7 @@ export default {
     temperatureData() {
       temperatureData()
         .then(res => {
-          this.allList = res.data.tableList
+          this.allList = res.data.items
           this.schArr = this.allList
           this.getPageData()
           this.total = res.data.total
