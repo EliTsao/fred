@@ -59,12 +59,20 @@ export const constantRoutes = [
   {
     path: '/form',
     component: Layout,
+    name: 'User',
+    meta: { title: '用户权限管理' },
     children: [
       {
         path: 'index',
         name: 'Form',
         component: () => import('@/views/user/index'),
         meta: { title: '用户管理', icon: 'form' }
+      },
+      {
+        path: 'role',
+        name: 'role',
+        component: () => import('@/views/role/index'),
+        meta: { title: '角色管理' }
       }
     ]
   },

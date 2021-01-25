@@ -35,13 +35,15 @@
           class="btnStyle1"
           @click="excelDow"
         >导出Excel文件</el-button>
+        <el-button type="primary" @click="test">测试</el-button>
       </div>
       <el-table :data="tableData" border stripe>
         <el-table-column prop="l_id" label="线路编号" />
         <el-table-column prop="l_name" label="线路名称" />
         <el-table-column prop="r_id" label="机器人编号" />
         <el-table-column prop="r_time" label="机器人名称" />
-        <el-table-column prop="segmented" label="所属分段" />
+        <el-table-column prop="segmented" label="塔号" />
+        <el-table-column prop="distance" label="距离" />
         <el-table-column prop="temperature" label="环境温度" />
         <el-table-column prop="humidity" label="湿度值" />
         <el-table-column prop="power" label="机器人电量" />
@@ -64,7 +66,7 @@
 
 <script>
 import axios from 'axios'
-import { getPageTab2 } from '@/api/table'
+import { temperatureData } from '@/api/history'
 export default {
   filters: {
     statusText(val) {
@@ -96,6 +98,10 @@ export default {
   },
   data() {
     return {
+      total: '10',
+      totalPage: 1,
+      items: {
+      },
       tableData: [],
       allList: [],
       schArr: [],
@@ -104,7 +110,6 @@ export default {
       sch_date: null,
       currentPage: 1,
       pageSize: 10,
-      total: 0,
       pageSizes: [10, 20, 30, 40],
       diaIsShow: false,
       formData: {},
@@ -118,7 +123,6 @@ export default {
       ],
       rowIndex: 0,
       rules: {
-        // order: [{ required: true, message: '请输入订单号', trigger: 'blur' }],
         time: [
           {
             // type: 'datetime',
@@ -126,22 +130,17 @@ export default {
             message: '请输入时间',
             trigger: 'change'
           }
-        ],
-        address: [{ required: true, message: '请输入地址', trigger: 'blur' }],
-        phone: [{ required: true, message: '请输入联系方式', trigger: 'blur' }],
-        name: [{ required: true, message: '请输入姓名', trigger: 'blur' }],
-        status: [
-          { required: true, message: '请选择订单状态', trigger: 'change' }
         ]
       }
     }
   },
+
   created() {
-    this._getPageTab2()
+    this.temperatureData()
   },
   methods: {
     excelDow(params) {
-      axios.get('/tmData', {
+      axios.get('http://192.168.31.16:10010/tmData', {
         params: {
         }
       })
@@ -154,8 +153,8 @@ export default {
       this.currentPage = val
       this.getPageData()
     },
-    _getPageTab2() {
-      getPageTab2()
+    temperatureData() {
+      temperatureData()
         .then(res => {
           this.allList = res.data.tableList
           this.schArr = this.allList
@@ -171,102 +170,12 @@ export default {
       const end = start + this.pageSize
       this.tableData = this.schArr.slice(start, end)
     },
-    // 查找
-    searchTab() {
-      let arrList = []
-      for (const item of this.allList) {
-        if (
-          this.sch_order.trim() === '' &&
-          this.sch_status === null &&
-          this.sch_date === null
-        ) {
-          arrList = this.allList
-          break
-        } else if (
-          item.order.startsWith(this.sch_order) &&
-          (this.sch_status !== null ? item.status === this.sch_status : true) &&
-          (this.sch_date !== null ? item.time.startsWith(this.sch_date) : true)
-        ) {
-          const obj = Object.assign({}, item)
-          arrList.push(obj)
-        }
-      }
-      this.schArr = arrList
-      this.total = arrList.length
-      this.currentPage = 1
-      this.pageSize = 10
-      this.getPageData()
-    },
-    // 审核
-    toConfirm(row) {
-      row.status = 2
-      this.$notify({
-        title: '成功',
-        message: '审核提交成功',
-        type: 'success'
-      })
-    },
-    // 完成
-    toSuccess(row) {
-      row.status = 0
-      this.$notify({
-        title: '成功',
-        message: '该订单已完成配送',
-        type: 'success'
-      })
-    },
-    // 取消
-    toDelete(row) {
-      row.status = 3
-      this.$notify({
-        title: '成功',
-        message: '已取消该订单',
-        type: 'success'
-      })
-    },
-    // 编辑
-    editTable(index, row) {
-      this.formData = Object.assign({}, row)
-      this.editType = 'update'
-      this.diaIsShow = true
-      this.$nextTick(() => {
-        this.$refs.diaForm.clearValidate()
-      })
-      this.rowIndex = index
-    },
-    changeTab(form, type) {
-      this.$refs[form].validate(valid => {
-        if (valid) {
-          if (type === 'update') {
-            // 改变整个表格数据
-            const start = (this.currentPage - 1) * this.pageSize
-            this.allList[start + this.rowIndex] = Object.assign(
-              {},
-              this.formData
-            )
-            // 解决数组不能通过索引响应数据变化
-            this.$set(
-              this.tableData,
-              this.rowIndex,
-              Object.assign({}, this.formData)
-            )
-            this.$notify({
-              title: '成功',
-              message: '订单已修改成功',
-              type: 'success'
-            })
-          } else {
-            this.tableData.unshift(Object.assign({}, this.formData))
-            this.allList.push(Object.assign({}, this.formData))
-          }
-          this.diaIsShow = false
-        } else {
-          return
-        }
-      })
+    test(params) {
+      axios.get('http://192.168.31.16:10010/history/temperatureData')
     }
   }
 }
+
 </script>
 <style lang="scss" scoped>
 .fyDiv {

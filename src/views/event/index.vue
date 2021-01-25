@@ -57,7 +57,7 @@
 </template>
 
 <script>
-import { getPageTab2 } from '@/api/table'
+import { event } from '@/api/event'
 export default {
   filters: {
     statusText(val) {
@@ -121,7 +121,7 @@ export default {
     }
   },
   created() {
-    this._getPageTab2()
+    this.event()
   },
   methods: {
     handleSize(val) {
@@ -132,8 +132,8 @@ export default {
       this.currentPage = val
       this.getPageData()
     },
-    _getPageTab2() {
-      getPageTab2()
+    event() {
+      event()
         .then(res => {
           this.allList = res.data.tableList
           this.schArr = this.allList

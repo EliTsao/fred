@@ -41,11 +41,13 @@
         <el-table-column prop="l_name" label="线路名称" />
         <el-table-column prop="r_id" label="机器人编号" />
         <el-table-column prop="r_time" label="机器人名称" />
-        <el-table-column prop="segmented" label="所属分段" />
+        <el-table-column prop="segmented" label="塔号" />
+        <el-table-column prop="distance" label="距离" />
         <el-table-column prop="temperature" label="环境温度" />
         <el-table-column prop="humidity" label="湿度值" />
         <el-table-column prop="power" label="机器人电量" />
         <el-table-column prop="time" label="创建时间" />
+        <el-table-column prop="img" label="抓取图片" />
       </el-table>
       <el-pagination
         background
@@ -65,23 +67,12 @@
 <script>
 import axios from 'axios'
 import { robotData } from '@/api/history'
+
 export default {
-  filters: {
-    tagClass(val) {
-      if (val === undefined) return
-      if (val === 0) {
-        return 'success'
-      } else if (val === 1) {
-        return 'info'
-      } else if (val === 2) {
-        return 'warning'
-      } else {
-        return 'danger'
-      }
-    }
-  },
   data() {
     return {
+      total: 12,
+      totalPage: 1,
       tableData: [],
       allList: [],
       schArr: [],
@@ -90,7 +81,6 @@ export default {
       sch_date: null,
       currentPage: 1,
       pageSize: 10,
-      total: 0,
       pageSizes: [10, 20, 30, 40],
       diaIsShow: false,
       formData: {},
@@ -104,7 +94,6 @@ export default {
       ],
       rowIndex: 0,
       rules: {
-        // order: [{ required: true, message: '请输入订单号', trigger: 'blur' }],
         time: [
           {
             // type: 'datetime',
@@ -116,9 +105,12 @@ export default {
       }
     }
   },
+  created() {
+    this.robotData()
+  },
   methods: {
     excelDow(params) {
-      axios.get('/realTimeExcel', {
+      axios.get('http://192.168.31.16:10010/realTimeExcel', {
         params: {
         }
       })
@@ -131,8 +123,8 @@ export default {
       this.currentPage = val
       this.getPageData()
     },
-    _getPageTab2() {
-      getPageTab2()
+    robotData() {
+      robotData()
         .then(res => {
           this.allList = res.data.tableList
           this.schArr = this.allList
@@ -173,37 +165,6 @@ export default {
       this.currentPage = 1
       this.pageSize = 10
       this.getPageData()
-    },
-    changeTab(form, type) {
-      this.$refs[form].validate(valid => {
-        if (valid) {
-          if (type === 'update') {
-            // 改变整个表格数据
-            const start = (this.currentPage - 1) * this.pageSize
-            this.allList[start + this.rowIndex] = Object.assign(
-              {},
-              this.formData
-            )
-            // 解决数组不能通过索引响应数据变化
-            this.$set(
-              this.tableData,
-              this.rowIndex,
-              Object.assign({}, this.formData)
-            )
-            this.$notify({
-              title: '成功',
-              message: '订单已修改成功',
-              type: 'success'
-            })
-          } else {
-            this.tableData.unshift(Object.assign({}, this.formData))
-            this.allList.push(Object.assign({}, this.formData))
-          }
-          this.diaIsShow = false
-        } else {
-          return
-        }
-      })
     }
   }
 }

@@ -2,22 +2,22 @@ import request from '@/utils/request'
 
 export function robotData() {
   return request({
-    url: '/robotData',
-    method: 'get',
-    params: {
-      endTime: 'this.endTime',
-      lineName: 'this.LIneName',
-      pageNum: 'this.pageNum',
-      pageSize: 'this.pageSize',
-      robotName: 'this.robotName',
-      startName: 'this.startName'
-    }
+    url: 'history/robotData',
+    method: 'get'
+    // params: {
+    //   endTime: '',
+    //   lineName: '',
+    //   pageNum: '',
+    //   pageSize: '',
+    //   robotName: '',
+    //   startName: ''
+    // }
   })
 }
 
-export function tempertureData(params) {
+export function temperatureData(params) {
   return request({
-    url: '/tempertureData',
+    url: '/history/temperatureData',
     method: 'get'
   })
 }
