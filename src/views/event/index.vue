@@ -32,14 +32,14 @@
         >搜索</el-button>
       </div>
       <el-table :data="tableData" border stripe>
-        <el-table-column prop="id" label="序号" />
+        <!-- <el-table-column prop="id" label="序号" /> -->
         <el-table-column prop="type" label="事件类型" />
         <el-table-column prop="object" label="操作对象" />
         <el-table-column prop="action" label="具体操作" />
-        <el-table-column prop="name" label="修改前状态" />
-        <el-table-column prop="newvalue" label="修改后状态" />
-        <el-table-column prop="username" label="操作人员" />
-        <el-table-column prop="createtime" label="操作时间" />
+        <el-table-column prop="oldValue" label="修改前状态" />
+        <el-table-column prop="newValue" label="修改后状态" />
+        <el-table-column prop="userName" label="操作人员" />
+        <el-table-column prop="createTime" label="操作时间" />
       </el-table>
       <el-pagination
         background

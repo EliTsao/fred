@@ -1,109 +1,183 @@
 <template>
-  <div class="slideCharts">
-    <div class="chartBox">
-      <div class="btns">
-        <el-button
-          :class="{ active: shows === 1 }"
-          size="small"
-          @click="
-            setChartData(10)
-            shows = 1
-          "
-        >10天</el-button>
-        <el-button
-          :class="{ active: shows === 2 }"
-          size="small"
-          @click="
-            setChartData(30)
-            shows = 2
-          "
-        >30天</el-button>
-        <el-button
-          :class="{ active: shows === 3 }"
-          size="small"
-          @click="
-            setChartData(60)
-            shows = 3
-          "
-        >60天</el-button>
-        <el-button
-          :class="{ active: shows === 4 }"
-          size="small"
-          @click="
-            setChartData(180)
-            shows = 4
-          "
-        >180天</el-button>
-        <el-button @click="test">测试</el-button>
+  <div class="className">
+    <el-card class="anoCard">
+      <div slot="header">
+        <span>趋势曲线</span>
       </div>
-      <div ref="myCharts" class="chartBox_d" />
-    </div>
+      <div :class="className" :style="{height:height,width:width}" />
+      <div>
+        <el-button @click="test">test</el-button>
+      </div>
+    </el-card>
   </div>
 </template>
 
 <script>
-// 引入api
-import charapi from '@/api/data'
-var echarts = require('echarts')
+import echarts from 'echarts'
+require('echarts/theme/macarons') // echarts theme
+import resize from '../../components/Charts/mixins/resize'
+import { listLine } from '@/api/data'
 export default {
-  data() {
-    // ...省略
-  },
-  watch: {
-    // 数据变化时自动重画，在控制台修改message,会自动重画
-    message: function() {
-      this.draw()
+  mixins: [resize],
+  props: {
+    className: {
+      type: String,
+      default: 'chart'
+    },
+    width: {
+      type: String,
+      default: '760px'
+    },
+    height: {
+      type: String,
+      default: '303px'
+    },
+    autoResize: {
+      type: Boolean,
+      default: true
     }
   },
-  mounted () {
-    this.draw()
+  data() {
+    return {
+      chart: null,
+      MapList: [],
+      rows: [],
+      LineList: [],
+      lineInAmount: [],
+      ineOutAmount: [],
+      lineDate: [],
+      queryParams: {
+        lineInAmount: undefined,
+        lineOutAmount: undefined,
+        lineDate: undefined
+      }
+    }
+  },
+  mounted() {
+    this.$nextTick(() => {
+      this.initChart()
+    })
+  },
+  beforeDestroy() {
+    if (!this.chart) {
+      return
+    }
+    this.chart.dispose()
+    this.chart = null
+  },
+  created() {
+    this.getLineList()
   },
   methods: {
-    draw () {
-      let that = this;
-      // 通过Api请求后端接口，返回的结果会自动给resp变量
-      // 因为不需要传参，所以getData()不用写参数
-      charapi.getData().then(function(resp) {
-        // 如果返回状态码是200
-        // eslint-disable-next-line eqeqeq
-        if (resp.data.code == 200) {
-          // 就将数据更改
-          that.option.series.data = resp.data.data;
+    getLineList() {
+      this.loading = true
+      listLine(this.queryParams).then(response => {
+        this.MapList = response.rows
+        console.log('折线图数据：' + this.MapList)
+        const MapList = this.MapList
+        if (MapList) {
+          const obj = eval(MapList) // eval() 函数可计算某个字符串，并执行其中的的 JavaScript 代码。返回值是通过计算 string 而得到的值
+          console.log(obj)
+          for (let i = 0; i < obj.length; i++) {
+            this.lineInAmount.push(MapList[i].lineInAmount)
+          }
+          // console.log(this.lineInAmount);
+          for (let i = 0; i < obj.length; i++) {
+            this.lineOutAmount.push(MapList[i].lineOutAmount)
+          }
+          for (let i = 0; i < obj.length; i++) {
+            this.lineDate.push(MapList[i].lineDate)
+          }
         }
+        this.chart.setOption({
+          xAxis: {
+            data: this.lineDate
+          },
+          series: [{
+            name: '入库金额',
+            data: this.lineInAmount
+          },
+          {
+            name: '出库金额',
+            data: this.lineOutAmount
+          }]
+        })
       })
-      const myChart = echarts.init(document.getElementById('main'));
-      myChart.setOption(this.option, true)
+    },
+    initChart() {
+      this.chart = echarts.init(this.$el, 'macarons')
+      this.chart.list({
+        xAxis: {
+          data: this.time,
+          boundaryGap: false,
+          axisTick: {
+            show: false
+          }
+        },
+        grid: {
+          left: 10,
+          right: 10,
+          bottom: 20,
+          top: 30,
+          containLabel: true
+        },
+        tooltip: {
+          trigger: 'axis',
+          axisPointer: {
+            type: 'cross'
+          },
+          padding: [5, 10]
+        },
+        yAxis: {
+          data: this.value,
+          axisTick: {
+            show: false
+          }
+        },
+        legend: {
+          data: ['入库金额', '出库金额'],
+          textStyle: {
+            color: 'white'
+          }
+        },
+        series: [{
+          name: '入库金额', itemStyle: {
+            normal: {
+              color: '#FF005A',
+              lineStyle: {
+                color: '#FF005A',
+                width: 2
+              }
+            }
+          },
+          smooth: true,
+          type: 'line',
+          data: this.lineInAmount,
+          animationDuration: 2800,
+          animationEasing: 'cubicInOut'
+        },
+        {
+          name: '出库金额',
+          smooth: true,
+          type: 'line',
+          itemStyle: {
+            normal: {
+              color: '#3888fa',
+              lineStyle: {
+                color: '#45E4A5',
+                width: 2
+              }
+            }
+          },
+          data: this.lineOutAmount,
+          animationDuration: 2800,
+          animationEasing: 'quadraticOut'
+        }]
+      })
     }
-
   }
 }
-</script>
-}
-
 </script>
 <style lang="scss" scoped>
-.slideCharts {
-  height: calc(100% - 72px);
-}
-.chartBox {
-  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
-  background: #fff;
-  height: 100%;
-  position: relative;
-  .chartBox_d {
-    height: 100%;
-    box-sizing: border-box;
-    padding: 30px 20px 30px 20px;
-  }
-  .btns {
-    position: absolute;
-    right: 40px;
-    top: 20px;
-    z-index: 99;
-    .el-button.active {
-      color: #3a8ee6;
-      background: #ddeeff;
-    }
-  }
-}
+
 </style>

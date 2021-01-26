@@ -1,7 +1,7 @@
 <template>
   <div class="mainpage-container">
     <div class="robot">
-      <span>机器人列表</span>
+      <span @click="tan">机器人1</span>
     </div>
 
     <div class="second">
@@ -10,24 +10,27 @@
       </div>
 
       <div class="three">
+        <div class="player">
 
-        <div class="player-box">
-          <span>主摄像头</span>
-          <div id="wasmPlayer" />
-        </div>
+          <div class="player-box">
+            <span>主摄像头</span>
+            <div id="wasmPlayer" />
+          </div>
 
-        <div class="player-box">
-          <span>热成像图</span>
-          <div id="wasmPlayer" />
+          <div class="player-box">
+            <span>热成像图</span>
+            <div id="wasmPlayer" />
 
-        </div><div class="player-box">
-          <span>前轮摄像头</span>
-          <div id="wasmPlayer" />
-        </div>
+          </div><div class="player-box">
+            <span>前轮摄像头</span>
+            <div id="wasmPlayer" />
+          </div>
 
-        <div class="player-box">
-          <span>后轮摄像头</span>
-          <div id="wasmPlayer" />
+          <div class="player-box">
+            <span>后轮摄像头</span>
+            <div id="wasmPlayer" />
+          </div>
+
         </div>
       </div>
     </div>
@@ -35,16 +38,7 @@
     <div class="first">
 
       <div class="zhuangtai">
-        <el-card class="box-card">
-          <div slot="header" class="clearfix">
-            <span>机器人状态</span>
-          </div>
-          <div v-for="o in 4" :key="o" class="text item">
-            {{ '列表内容 ' + o }}
-          </div>
-        </el-card>
-      </div>
-
+</div>
       <div class="zhiling">
         <el-row>
           <el-button @click="walkDirection(1)" @mousedown="change(1)">前进</el-button>
@@ -85,7 +79,6 @@
         <el-row>
           <el-button @click="postion">降滑台</el-button>
         </el-row>
-        <el-row></el-row>
       </div>
     </div>
 
@@ -104,12 +97,11 @@ export default {
     return {
       dierection: '',
       serialNumber: ''
-      // path: 'http://172.21.227.60:10010/',
-      // socket: ''
     }
   },
   mounted() {
     this.init
+    this.webSocketConnect()
   },
 
   computed: {
@@ -121,18 +113,30 @@ export default {
   methods: {
     webSocketConnect() {
       // 连接上端口
-      const socket = new SockJS('https://192.168.31.16:10010/endpoint_is')
+      const socket = new SockJS('http://192.168.31.16:10010/endpoint_is')
       this.stompClient = Stomp.over(socket)
-      this.stompClient.connect({}, () => {
+      this.stompClient.connect({}, (frame) => {
+        console.log(frame)
+        // 订阅温度报警消息
         this.stompClient.subscribe('/alarm', res => {
           console.log(res)
         })
-        this.stompClient.subscribe('/robotData', (res) => {
+        // 订阅机器人实时消息
+        this.stompClient.subscribe('/robotData/1', (res) => {
           console.log(res)
         })
+        // 订阅系统消息
         this.stompClient.subscribe('/systemMessage', (res) => {
           console.log(res)
         })
+        // 消息提示
+        this.socket.onmessage = function(msg) {
+          const data = JSON.parse(msg.data)
+          this.$notify({
+            title: '系统消息',
+            message: ''
+          })
+        }
       })
     },
     walkDirection(data) {
@@ -221,6 +225,9 @@ export default {
     .zhuangtai{
     }
     .zhiling{
+      display: flex;
+      flex-wrap: wrap;
+      flex-direction: row;
       background-color: ghostwhite;
     }
   }
@@ -247,10 +254,18 @@ export default {
     width: 480px;
   }
   .player-box {
-    height: 400px;
-    width: 600px;
+    height: 200px;
+    width: 440px;
     margin: auto;
     margin-top: 2%;
     border: 1px solid #eee;
+  }
+  .player{
+    display: flex;
+    flex-direction: row;
+    padding: 1em;
+    height: 440px;
+    width: 900px;
+    flex-wrap: wrap;
   }
 </style>

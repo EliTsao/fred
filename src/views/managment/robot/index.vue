@@ -26,21 +26,15 @@
       </div>
       <el-table :data="tableData" border stripe>
         <el-table-column prop="robotName" label="机器人编号" />
-        <el-table-column prop="serialNmae" label="机器人序列号" />
-        <el-table-column prop="adress" label="所在位置" />
+        <el-table-column prop="serialNumber" label="机器人序列号" />
+        <el-table-column prop="address" label="所在位置" />
         <el-table-column prop="walkDirection" label="行走方向" />
         <el-table-column prop="power" label="剩余电量" />
-        <el-table-column prop="network" label="在线情况" />
+        <el-table-column prop="workState" label="工作状态" />
+        <el-table-column prop="networkState" label="网络连接情况状态" />
         <el-table-column prop="speed" label="速度" />
         <el-table-column prop="walkPattern" label="行走状态" />
         <el-table-column prop="lineName" label="所在线路" />
-        <el-table-column prop="status" label="状态" width="90">
-          <template slot-scope="scope">
-            <el-tag :type="scope.row.status | tagClass">{{
-              scope.row.status | statusText
-            }}</el-tag>
-          </template>
-        </el-table-column>
       </el-table>
       <el-pagination
         background
@@ -75,12 +69,6 @@ export default {
       diaIsShow: false,
       formData: {},
       editType: '',
-      options: [
-        { label: '待审核', value: 1 },
-        { label: '配送中', value: 2 },
-        { label: '已完成', value: 0 },
-        { label: '已取消', value: 3 }
-      ],
       rowIndex: 0
     }
   },

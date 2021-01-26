@@ -143,7 +143,6 @@
 </template>
 
 <script>
-import { getPageTab2 } from '@/api/table'
 export default {
   filters: {
     statusText(val) {

@@ -38,7 +38,7 @@
       />
       <el-table-column
         show-overflow-tooltip
-        prop="username"
+        prop="userName"
         label="用户名"
       />
       <el-table-column
