@@ -19,13 +19,16 @@
       <el-form-item label="电话号码" prop="phone">
         <el-input v-model.trim="form.phone" autocomplete="off" />
       </el-form-item>
-      <el-form-item label="权限" prop="permissions">
+      <el-form-item label="序列号" prop="serialNumber">
+        <el-input v-model.trim="form.serialNumber" autocomplete="off" />
+      </el-form-item>
+      <!-- <el-form-item label="权限" prop="permissions">
         <el-checkbox-group v-model="form.permissions">
           <el-checkbox label="super-admin" />
           <el-checkbox label="admin" />
-          <el-checkbox label="editor" />
-        </el-checkbox-group>
-      </el-form-item>
+          <el-checkbox label="editor" /> -->
+      <!-- </el-checkbox-group>
+      </el-form-item> -->
     </el-form>
     <div slot="footer" class="dialog-footer">
       <el-button @click="close">取 消</el-button>
@@ -45,7 +48,7 @@ export default {
         userName: '',
         password: '',
         phone: '',
-        permissions: []
+        serialNumber: ''
       },
       rules: {
         userName: [
@@ -55,9 +58,10 @@ export default {
           { required: true, trigger: 'blur', message: '请输入密码' }
         ],
         phone: [{ required: true, trigger: 'blur', message: '请输入电话号码' }],
-        permissions: [
-          { required: true, trigger: 'blur', message: '请选择权限' }
-        ]
+        serialNumber: [{ required: true, trigger: 'blur', message: '请输入序列号' }]
+        // permissions: [
+        //   { required: true, trigger: 'blur', message: '请选择权限' }
+        // ]
       },
       title: '',
       dialogFormVisible: false

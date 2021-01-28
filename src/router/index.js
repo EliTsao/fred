@@ -97,16 +97,10 @@ export const constantRoutes = [
     meta: { title: '设备管理', icon: 'el-icon-setting' },
     children: [
       {
-        path: 'line',
-        component: () => import('@/views/managment/line/index'),
-        name: 'line',
-        meta: { title: '输电线路管理' }
-      },
-      {
         path: 'robot',
         component: () => import('@/views/managment/robot/index'),
         name: 'robot',
-        meta: { title: '机器人管理' }
+        meta: { title: '设备管理' }
       }
 
     ]

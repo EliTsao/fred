@@ -1,12 +1,8 @@
 <template>
-  <div class="className">
+  <div :class="className" :style="{height:height,width:width}">
     <el-card class="anoCard">
       <div slot="header">
-        <span>趋势曲线</span>
-      </div>
-      <div :class="className" :style="{height:height,width:width}" />
-      <div>
-        <el-button @click="test">test</el-button>
+        <span>实时数据查询</span>
       </div>
     </el-card>
   </div>
@@ -17,6 +13,7 @@ import echarts from 'echarts'
 require('echarts/theme/macarons') // echarts theme
 import resize from '../../components/Charts/mixins/resize'
 import { listLine } from '@/api/data'
+
 export default {
   mixins: [resize],
   props: {
@@ -43,13 +40,15 @@ export default {
       MapList: [],
       rows: [],
       LineList: [],
-      lineInAmount: [],
-      ineOutAmount: [],
-      lineDate: [],
+      time: [],
+      humidity: [],
+      environmentTemperature: [],
+      power: [],
       queryParams: {
-        lineInAmount: undefined,
-        lineOutAmount: undefined,
-        lineDate: undefined
+        power: undefined,
+        environmentTemperature: undefined,
+        humidity: undefined,
+        time: undefined
       }
     }
   },
@@ -72,41 +71,47 @@ export default {
     getLineList() {
       this.loading = true
       listLine(this.queryParams).then(response => {
-        this.MapList = response.rows
+        this.MapList = response.data
         console.log('折线图数据：' + this.MapList)
         const MapList = this.MapList
         if (MapList) {
           const obj = eval(MapList) // eval() 函数可计算某个字符串，并执行其中的的 JavaScript 代码。返回值是通过计算 string 而得到的值
-          console.log(obj)
+          console.log(obj.length)
           for (let i = 0; i < obj.length; i++) {
-            this.lineInAmount.push(MapList[i].lineInAmount)
-          }
-          // console.log(this.lineInAmount);
-          for (let i = 0; i < obj.length; i++) {
-            this.lineOutAmount.push(MapList[i].lineOutAmount)
+            this.environmentTemperature.push(MapList[i].environmentTemperature)
           }
           for (let i = 0; i < obj.length; i++) {
-            this.lineDate.push(MapList[i].lineDate)
+            this.power.push(MapList[i].power)
+          }
+          for (let i = 0; i < obj.length; i++) {
+            this.humidity.push(MapList[i].humidity)
+          }
+          for (let i = 0; i < obj.length; i++) {
+            this.time.push(MapList[i].time)
           }
         }
         this.chart.setOption({
           xAxis: {
-            data: this.lineDate
+            data: this.time
           },
           series: [{
-            name: '入库金额',
-            data: this.lineInAmount
+            name: '机器人电量',
+            data: this.power
           },
           {
-            name: '出库金额',
-            data: this.lineOutAmount
+            name: '湿度',
+            data: this.humidity
+          },
+          {
+            name: '环境温度',
+            data: this.environmentTemperature
           }]
         })
       })
     },
     initChart() {
       this.chart = echarts.init(this.$el, 'macarons')
-      this.chart.list({
+      this.chart.setOption({
         xAxis: {
           data: this.time,
           boundaryGap: false,
@@ -129,19 +134,18 @@ export default {
           padding: [5, 10]
         },
         yAxis: {
-          data: this.value,
           axisTick: {
             show: false
           }
         },
         legend: {
-          data: ['入库金额', '出库金额'],
+          data: ['机器人电量', '湿度', '温度'],
           textStyle: {
             color: 'white'
           }
         },
         series: [{
-          name: '入库金额', itemStyle: {
+          name: '机器人电量', itemStyle: {
             normal: {
               color: '#FF005A',
               lineStyle: {
@@ -152,12 +156,12 @@ export default {
           },
           smooth: true,
           type: 'line',
-          data: this.lineInAmount,
+          data: this.power,
           animationDuration: 2800,
           animationEasing: 'cubicInOut'
         },
         {
-          name: '出库金额',
+          name: '湿度',
           smooth: true,
           type: 'line',
           itemStyle: {
@@ -169,15 +173,48 @@ export default {
               }
             }
           },
-          data: this.lineOutAmount,
+          data: this.humidity,
           animationDuration: 2800,
           animationEasing: 'quadraticOut'
-        }]
+        },
+        {
+          name: '温度',
+          smooth: true,
+          type: 'line',
+          itemStyle: {
+            normal: {
+              color: '#3888fa',
+              lineStyle: {
+                color: '#45E4A5',
+                width: 2
+              }
+            }
+          },
+          data: this.environmentTemperature,
+          animationDuration: 2800,
+          animationEasing: 'quadraticOut'
+        }
+        ]
       })
     }
   }
 }
 </script>
-<style lang="scss" scoped>
 
+<style lang="scss" scoped>
+.chart-container {
+  position: relative;
+  width: 100%;
+  height: 500px;
+}
+.anoCard {
+  .el-card__body:after {
+    content: '';
+    clear: both;
+    width: 0;
+    height: 0;
+    visibility: hidden;
+    display: block;
+  }
+}
 </style>

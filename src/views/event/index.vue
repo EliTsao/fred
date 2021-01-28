@@ -204,22 +204,4 @@ export default {
   }
 }
 </style>
-<style lang="scss">
-.anoCard {
-  .el-card__body:after {
-    content: '';
-    clear: both;
-    width: 0;
-    height: 0;
-    visibility: hidden;
-    display: block;
-  }
-}
-.diaForm .el-form-item__label {
-  padding-right: 20px;
-}
-.searchDiv [class^='el-icon'] {
-  color: #fff;
-}
-</style>
 

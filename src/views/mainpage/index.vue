@@ -1,6 +1,9 @@
 <template>
   <div class="mainpage-container">
     <div class="robot">
+      <span>机器人列表</span>
+      <el-image :src="robot" @click="nn" />
+      <el-image :src="robot" />
       <span @click="tan">机器人1</span>
     </div>
 
@@ -13,21 +16,18 @@
         <div class="player">
 
           <div class="player-box">
-            <span>主摄像头</span>
             <div id="wasmPlayer" />
           </div>
 
           <div class="player-box">
-            <span>热成像图</span>
-            <div id="wasmPlayer" />
-
-          </div><div class="player-box">
-            <span>前轮摄像头</span>
             <div id="wasmPlayer" />
           </div>
 
           <div class="player-box">
-            <span>后轮摄像头</span>
+            <div id="wasmPlayer" />
+          </div>
+
+          <div class="player-box">
             <div id="wasmPlayer" />
           </div>
 
@@ -37,9 +37,20 @@
 
     <div class="first">
 
-      <div class="zhuangtai">
-</div>
+      <div class="zhuangtai" />
       <div class="zhiling">
+        <div class="control-box">
+          <!-- 云台控制按钮列表 -->
+          <span @click="testControl('zoomin')"><i class="el-icon-circle-plus-outline" /></span>
+          <span @click="testControl('up')"><i class="el-icon-arrow-up" /></span>
+          <span @click="testControl('zoomout')"><i class="el-icon-remove-outline" /></span>
+          <span @click="testControl('left')"><i class="el-icon-arrow-left" /></span>
+          <span @click="testControl('stop')">停止</span>
+          <span @click="testControl('right')"><i class="el-icon-arrow-right" /></span>
+          <span />
+          <span @click="testControl('down')"><i class="el-icon-arrow-down" /></span>
+          <span />
+        </div>
         <el-row>
           <el-button @click="walkDirection(1)" @mousedown="change(1)">前进</el-button>
         </el-row>
@@ -87,6 +98,7 @@
 </template>
 
 <script>
+import robot from '@/assets/robot/robot.png'
 import SockJS from 'sockjs-client'
 import Stomp from 'stompjs'
 import axios from 'axios'
@@ -96,12 +108,17 @@ export default {
   data() {
     return {
       dierection: '',
-      serialNumber: ''
+      serialNumber: '',
+      robot
     }
   },
   mounted() {
     this.init
     this.webSocketConnect()
+    // 实例化播放器
+    this.player = new WasmPlayer(null, 'Player', this.callbackfun)
+    // 调用播放
+    this.player.play(this.url, 1)
   },
 
   computed: {
@@ -111,6 +128,9 @@ export default {
   },
 
   methods: {
+    callbackfun(e) {
+      console.log('callbackfun', e)
+    },
     webSocketConnect() {
       // 连接上端口
       const socket = new SockJS('http://192.168.31.16:10010/endpoint_is')
@@ -141,12 +161,7 @@ export default {
     },
     walkDirection(data) {
       axios.get('http://192.168.31.16:10010/command/walkDirection/1/1', {
-        // params: {
-        //   direction: data,
-        //   serialNumber: '1'
-        // }
-      }
-      )
+      })
     },
     loadCable(params) {
       axios.get('http://192.168.31.16:10010/command/loadCable/1/3', {
@@ -257,7 +272,7 @@ export default {
     height: 200px;
     width: 440px;
     margin: auto;
-    margin-top: 2%;
+    margin-top: 1%;
     border: 1px solid #eee;
   }
   .player{

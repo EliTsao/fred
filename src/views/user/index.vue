@@ -14,15 +14,12 @@
         </el-button>
       </el-form-item>
     </el-form>
-    <vab-query-form-left-panel :span="12">
-      <el-button icon="el-icon-plus" type="primary" @click="handleEdit">
-        添加
-      </el-button>
-      <el-button icon="el-icon-delete" type="danger" @click="handleDelete">
-        批量删除
-      </el-button>
-    </vab-query-form-left-panel>
-    <vab-query-form-right-panel :span="12" />
+    <el-button icon="el-icon-plus" type="primary" @click="handleEdit">
+      添加
+    </el-button>
+    <el-button icon="el-icon-delete" type="danger" @click="handleDelete">
+      批量删除
+    </el-button>
 
     <el-table
       v-loading="listLoading"
@@ -113,21 +110,21 @@ export default {
     },
     handleDelete(row) {
       if (row.id) {
-        this.$baseConfirm('你确定要删除当前项吗', null, async() => {
-          const { msg } = await doDelete({ ids: row.id })
+        this.$confirm('你确定要删除当前项吗', null, async() => {
+          const { msg } = await doDelete({ id: row.id })
           this.$baseMessage(msg, 'success')
           this.fetchData()
         })
       } else {
         if (this.selectRows.length > 0) {
-          const ids = this.selectRows.map((item) => item.id).join()
-          this.$baseConfirm('你确定要删除选中项吗', null, async() => {
-            const { msg } = await doDelete({ ids })
-            this.$baseMessage(msg, 'success')
+          const id = this.selectRows.map((item) => item.id).join()
+          this.$confirm('你确定要删除选中项吗', null, async() => {
+            const { msg } = await doDelete({ id })
+            this.$Message(msg, 'success')
             this.fetchData()
           })
         } else {
-          this.$baseMessage('未选中任何行', 'error')
+          this.$Message('未选中任何行', 'error')
           return false
         }
       }
