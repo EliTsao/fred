@@ -136,6 +136,12 @@ export const constantRoutes = [
         component: () => import('@/views/history/search/temperature'),
         name: 'upload',
         meta: { title: '测温点数据' }
+      },
+      {
+        path: 'photo',
+        component: () => import('@/views/history/search/photo'),
+        name: 'photo',
+        meta: { title: '图片存储' }
       }
     ]
 

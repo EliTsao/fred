@@ -23,6 +23,13 @@
           icon="el-icon-search"
           @click="searchTab()"
         >搜索</el-button>
+        <el-button
+          type="primary"
+          icon="el-icon-circle-plus-outline"
+          @click="addTab"
+        >添加机器人</el-button>
+        <el-button type="text" @click="open">查询版本信息</el-button>
+        <el-button @click="upload">文件上传</el-button>
       </div>
       <el-table :data="tableData" border stripe>
         <el-table-column prop="robotName" label="机器人编号" />
@@ -35,6 +42,19 @@
         <el-table-column prop="speed" label="速度" />
         <el-table-column prop="walkPattern" label="行走状态" />
         <el-table-column prop="lineName" label="所在线路" />
+        <el-table-column prop="management" label="管理">
+          <template slot-scope="scope">
+            <el-button
+              type="primary"
+              @click="editTable(scope.$index, scope.row)"
+            >编辑</el-button>
+            <el-button
+              type="warning"
+              :disabled="scope.row.status === 1 ? false : true"
+              @click="toConfirm(scope.row)"
+            >审核</el-button>
+          </template>
+        </el-table-column>
       </el-table>
       <el-pagination
         background
@@ -52,7 +72,7 @@
 </template>
 
 <script>
-import { findAll } from '@/api/robot'
+import { findAll, upload } from '@/api/robot'
 export default {
   data() {
     return {
@@ -76,6 +96,18 @@ export default {
     this.findAll()
   },
   methods: {
+    open() {
+      this.$alert('这是一段内容', '标题名称', {
+        confirmButtonText: '确定',
+        callback: action => {
+          this.$message({
+            type: 'info',
+            message: `action: ${action}`
+          })
+        }
+      })
+    },
+
     handleSize(val) {
       this.pageSize = val
       this.getPageData()
@@ -100,6 +132,9 @@ export default {
       const start = (this.currentPage - 1) * this.pageSize
       const end = start + this.pageSize
       this.tableData = this.schArr.slice(start, end)
+    },
+    upload() {
+      upload()
     }
   }
 }

@@ -1,0 +1,313 @@
+html,
+body {
+    margin : 0;
+    padding: 0;
+    height : 100%;
+}
+
+body {
+    display         : flex;
+    flex-direction  : column;
+    color           : #FF9800;
+    background-color: #004D40;
+}
+
+/* 网格布局 */
+.container {
+    flex                 : 1;
+    display              : grid;
+    gap                  : 5px;
+    grid-template-columns: 120px auto 280px;
+    grid-template-rows   : 220px auto;
+    overflow             : hidden;
+}
+
+.container>.list {
+    display         : flex;
+    flex-direction  : column;
+    grid-row        : 1 / 3;
+    padding         : 5px;
+    text-align      : center;
+    background-color: black;
+    overflow        : hidden;
+}
+
+.container>.line {
+    position        : relative;
+    grid-column     : 2 / 4;
+    background-color: white;
+    overflow        : hidden;
+}
+
+.container>.camera {
+    background-color: black;
+}
+
+.container>.status {
+    background-color: blueviolet;
+}
+
+.statusBar {
+    display: flex;
+    padding: 5px;
+}
+
+.statusBar>.msg {
+    flex: 1;
+}
+
+/* 机器人列表 */
+.list ul {
+    flex      : 1;
+    list-style: none;
+    margin    : 5px 0;
+    padding   : 0;
+    overflow-y: auto;
+}
+
+.list ul li {
+    color           : #555;
+    margin-bottom   : 5px;
+    background-color: white;
+}
+
+.list ul li:active {
+    opacity: 0.9;
+}
+
+.list ul div {
+    padding   : 5px 0;
+    border-top: 2px solid #795548;
+}
+
+.list ul img {
+    width     : 100%;
+    height    : 150px;
+    object-fit: cover;
+}
+
+.list button {
+    border          : none;
+    height          : 30px;
+    background-color: rgba(255, 255, 255, 0.8);
+}
+
+.list button img {
+    height: 100%;
+}
+
+/* 塔列表 */
+.line>.info {
+    position: absolute;
+    left    : 0;
+    right   : 0;
+    top     : 0;
+    display : flex;
+}
+
+.line>.info>div {
+    padding  : 10px;
+    color    : #E74C3C;
+    min-width: 120px;
+    border   : 1px solid black;
+}
+
+.line>.info>div:last-child {
+    color           : black;
+    text-align      : center;
+    background-color: #4DD0E1;
+}
+
+.line>.info>.block {
+    flex  : 1;
+    border: none;
+}
+
+.line>img {
+    width     : 100%;
+    height    : 100%;
+    object-fit: cover;
+}
+
+/* 摄像头列表 */
+.camera {
+    display              : grid;
+    grid-template-columns: repeat(2, auto);
+    gap                  : 5px;
+    text-align           : center;
+}
+
+.camera>.item {
+    display       : flex;
+    flex-direction: column;
+}
+
+.camera>.item>div {
+    padding: 5px 0;
+}
+
+.camera canvas {
+    flex            : 1;
+    background-color: gray;
+}
+
+/* 状态信息 */
+.status {
+    display       : flex;
+    flex-direction: column;
+}
+
+.status>.info,
+.status>.control {
+    padding         : 0 20px 10px;
+    background-color: black;
+}
+
+.status>.info {
+    margin-bottom: 5px;
+}
+
+.status>.info>.title {
+    text-align: center;
+    font-size : 16px;
+    padding   : 5px 0;
+}
+
+.status>.info>.item {
+    display              : grid;
+    grid-template-columns: 80px auto;
+    text-align           : left;
+    font-size            : 14px;
+    margin               : 5px 0;
+}
+
+.status>.control {
+    flex          : 1;
+    display       : flex;
+    flex-direction: column;
+}
+
+.status>.control>.base {
+    display              : grid;
+    grid-template-columns: 50px 50px auto 100px;
+}
+
+.btn-pr {
+    display       : flex;
+    flex-direction: column;
+    align-items   : center;
+    font-size     : 14px;
+    padding       : 10px 0;
+}
+
+.btn-pr>div {
+    writing-mode: vertical-lr;
+    margin      : 5px 0;
+}
+
+.btn-pr>img {
+    width        : 28px;
+    height       : 28px;
+    border-radius: 50%;
+}
+
+.btn-pr>img:hover {
+    background-color: rgba(255, 255, 255, 0.3);
+}
+
+.d-pad {
+    position       : relative;
+    display        : flex;
+    align-items    : center;
+    justify-content: center;
+    width          : 100px;
+    height         : 100px;
+}
+
+.d-pad>img {
+    width        : 30px;
+    height       : 30px;
+    border-radius: 5px;
+}
+
+.d-pad>img:hover {
+    background-color: rgba(255, 255, 255, 0.3);
+}
+
+.d-pad>img:first-child {
+    background-color: #E74C3C;
+    border-radius   : 50%;
+    width           : 20px;
+    height          : 20px;
+}
+
+.d-pad>img:first-child:hover {
+    background-color: #FF9800;
+}
+
+/* 上箭头 */
+.d-pad>img:nth-child(2) {
+    position : absolute;
+    top      : 5px;
+    left     : 50%;
+    transform: translateX(-50%);
+}
+
+/* 下箭头 */
+.d-pad>img:nth-child(3) {
+    position : absolute;
+    bottom   : 5px;
+    left     : 50%;
+    transform: translateX(-50%);
+}
+
+/* 左箭头 */
+.d-pad>img:nth-child(4) {
+    position : absolute;
+    top      : 50%;
+    left     : 5px;
+    transform: translateY(-50%);
+}
+
+/* 右箭头 */
+.d-pad>img:nth-child(5) {
+    position : absolute;
+    top      : 50%;
+    right    : 5px;
+    transform: translateY(-50%);
+}
+
+.tools {
+    flex           : 1;
+    display        : flex;
+    flex-direction : column;
+    justify-content: center;
+}
+
+.tools button {
+    height          : 40px;
+    border          : none;
+    background-color: white;
+    border-radius   : 4px;
+}
+
+.tools button:hover {
+    background-color: rgba(255, 255, 255, 0.8);
+}
+
+/* 九宫格 */
+.grid-9,
+.grid-4 {
+    display: grid;
+    gap    : 5px;
+}
+
+.grid-9 {
+    grid-template-columns: repeat(3, auto);
+    grid-template-rows   : repeat(3, auto);
+}
+
+.grid-4 {
+    margin-top           : 5px;
+    grid-template-columns: repeat(4, auto);
+}

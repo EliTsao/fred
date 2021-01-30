@@ -2,7 +2,7 @@
   <div class="className">
     <el-card class="anoCard">
       <div slot="header">
-        <span>事件记录</span>
+        <span>图片查询</span>
       </div>
       <div class="searchDiv">
         <el-select
@@ -30,16 +30,24 @@
           icon="el-icon-search"
           @click="searchTab()"
         >搜索</el-button>
+        <el-button
+          type="primary"
+          class="btnStyle1"
+          @click="excelDow"
+        >导出Excel文件</el-button>
       </div>
       <el-table :data="tableData" border stripe>
-        <!-- <el-table-column prop="id" label="序号" /> -->
-        <el-table-column prop="type" label="事件类型" />
-        <el-table-column prop="object" label="操作对象" />
-        <el-table-column prop="action" label="具体操作" />
-        <el-table-column prop="oldValue" label="修改前状态" />
-        <el-table-column prop="newValue" label="修改后状态" />
-        <el-table-column prop="userName" label="操作人员" />
-        <el-table-column prop="createTime" label="操作时间" />
+        <el-table-column prop="id" label="线路编号" />
+        <el-table-column prop="lineName" label="线路名称" />
+        <el-table-column prop="robotSerialNumber" label="机器人编号" />
+        <el-table-column prop="robotName" label="机器人名称" />
+        <el-table-column prop="towerNumber" label="塔号" />
+        <el-table-column prop="robotPosition" label="距离" />
+        <el-table-column prop="environmentTemperature" label="环境温度" />
+        <el-table-column prop="humidity" label="湿度值" />
+        <el-table-column prop="power" label="机器人电量" />
+        <el-table-column prop="createTime" label="创建时间" />
+        <el-table-column prop="img" label="抓取图片" />
       </el-table>
       <el-pagination
         background
@@ -57,33 +65,14 @@
 </template>
 
 <script>
-import { event } from '@/api/event'
+import axios from 'axios'
+import { imageData } from '@/api/history'
+
 export default {
-  filters: {
-    statusText(val) {
-      if (val === undefined) return
-      if (val === 0) {
-        return '系统事件'
-      } else if (val === 1) {
-        return '用户操作'
-      } else if (val === 2) {
-        return '系统参数'
-      } else if (val === 3) {
-        return '用户管理'
-      } else if (val === 4) {
-        return '设备管理'
-      } else {
-        return '机器人参数'
-      }
-    }
-  },
   data() {
     return {
-      action: [],
-      endTime: [],
-      startTime: [],
-      type: [],
-      userName: [],
+      total: 0,
+      totalPage: 1,
       tableData: [],
       allList: [],
       schArr: [],
@@ -92,26 +81,40 @@ export default {
       sch_date: null,
       currentPage: 1,
       pageSize: 10,
-      total: 0,
       pageSizes: [10, 20, 30, 40],
       diaIsShow: false,
       formData: {},
       editType: '',
       options: [
-        { label: '系统事件', value: 0 },
-        { label: '用户操作', value: 1 },
-        { label: '系统参数', value: 2 },
-        { label: '用户管理', value: 3 },
-        { label: '设备管理', value: 4 },
-        { label: '机器人参数', value: 5 }
+        { label: '环境温度', value: 0 },
+        { label: '环境湿度', value: 1 },
+        { label: '测试点数据', value: 2 },
+        { label: '机器人电量', value: 3 },
+        { label: '抓图图片', value: 4 }
       ],
-      rowIndex: 0
+      rowIndex: 0,
+      rules: {
+        time: [
+          {
+            // type: 'datetime',
+            required: true,
+            message: '请输入时间',
+            trigger: 'change'
+          }
+        ]
+      }
     }
   },
   created() {
-    this.event()
+    this.imageData()
   },
   methods: {
+    excelDow(params) {
+      axios.get('http://192.168.31.16:10010/realTimeExcel', {
+        params: {
+        }
+      })
+    },
     handleSize(val) {
       this.pageSize = val
       this.getPageData()
@@ -120,8 +123,8 @@ export default {
       this.currentPage = val
       this.getPageData()
     },
-    event() {
-      event()
+    imageData() {
+      imageData()
         .then(res => {
           this.allList = res.data.items
           this.schArr = this.allList
@@ -136,33 +139,6 @@ export default {
       const start = (this.currentPage - 1) * this.pageSize
       const end = start + this.pageSize
       this.tableData = this.schArr.slice(start, end)
-    },
-    // 查找
-    searchTab() {
-      let arrList = []
-      for (const item of this.allList) {
-        if (
-          this.sch_order.trim() === '' &&
-          this.sch_status === null &&
-          this.sch_date === null
-        ) {
-          arrList = this.allList
-          break
-        } else if (
-          item.order.startsWith(this.sch_order) &&
-          (this.sch_status !== null ? item.status === this.sch_status : true) &&
-          (this.sch_date !== null ? item.time.startsWith(this.sch_date) : true)
-        ) {
-          const obj = Object.assign({}, item)
-          arrList.push(obj)
-        }
-      }
-      this.schArr = arrList
-      this.total = arrList.length
-      this.currentPage = 1
-
-      this.pageSize = 10
-      this.getPageData()
     }
   }
 }
@@ -193,4 +169,21 @@ export default {
   }
 }
 </style>
-
+<style lang="scss">
+.anoCard {
+  .el-card__body:after {
+    content: '';
+    clear: both;
+    width: 0;
+    height: 0;
+    visibility: hidden;
+    display: block;
+  }
+}
+.diaForm .el-form-item__label {
+  padding-right: 20px;
+}
+.searchDiv [class^='el-icon'] {
+  color: #fff;
+}
+</style>

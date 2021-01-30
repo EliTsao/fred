@@ -4,14 +4,6 @@ export function robotData() {
   return request({
     url: 'history/robotData',
     method: 'get'
-    // params: {
-    //   endTime: '',
-    //   lineName: '',
-    //   pageNum: '',
-    //   pageSize: '',
-    //   robotName: '',
-    //   startName: ''
-    // }
   })
 }
 
@@ -24,7 +16,7 @@ export function temperatureData(params) {
 
 export function imageData(params) {
   return request({
-    url: '/findImageById',
+    url: 'image/history/imageData',
     method: 'get',
     params: {
 

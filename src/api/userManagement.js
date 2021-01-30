@@ -2,7 +2,7 @@ import request from '@/utils/request'
 
 export function getList(data) {
   return request({
-    url: 'userManagement/user',
+    url: 'userManagement/findAllUser',
     method: 'get',
     data
   })
@@ -16,10 +16,18 @@ export function doEdit(data) {
   })
 }
 
-export function doDelete(data) {
+export function doDelete(params) {
   return request({
-    url: 'userManagement/doDelete',
+    url: 'userManagement/deleteUser',
     method: 'delete',
+    params
+  })
+}
+
+export function addUser(data) {
+  return request({
+    url: 'userManagement/addUser',
+    method: 'post',
     data
   })
 }

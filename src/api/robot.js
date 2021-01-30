@@ -4,12 +4,16 @@ export function robotadd(data) {
   return request({
     url: '/robot/add',
     method: 'post',
-    data: {
-
-    }
+    data
   })
 }
-
+export function upload(data) {
+  return request({
+    url: '/upload/bin',
+    method: 'post',
+    data
+  })
+}
 export function robotdelete(params) {
   return request({
     url: '/robot/delete/',

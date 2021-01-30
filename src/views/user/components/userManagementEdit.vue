@@ -38,7 +38,7 @@
 </template>
 
 <script>
-import { doEdit } from '@/api/userManagement'
+import { addUser } from '@/api/userManagement'
 
 export default {
   name: 'UserManagementEdit',
@@ -86,7 +86,7 @@ export default {
     save() {
       this.$refs['form'].validate(async(valid) => {
         if (valid) {
-          const { msg } = await doEdit(this.form)
+          const { msg } = await addUser(this.form)
           this.$baseMessage(msg, 'success')
           this.$emit('fetch-data')
           this.close()

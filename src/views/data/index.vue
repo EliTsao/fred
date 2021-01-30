@@ -23,11 +23,11 @@ export default {
     },
     width: {
       type: String,
-      default: '760px'
+      default: '1200px'
     },
     height: {
       type: String,
-      default: '303px'
+      default: '800px'
     },
     autoResize: {
       type: Boolean,
@@ -112,6 +112,12 @@ export default {
     initChart() {
       this.chart = echarts.init(this.$el, 'macarons')
       this.chart.setOption({
+        toolbox: {
+          show: true,
+          feature: {
+            saveAsImage: {}
+          }
+        },
         xAxis: {
           data: this.time,
           boundaryGap: false,
@@ -139,10 +145,7 @@ export default {
           }
         },
         legend: {
-          data: ['机器人电量', '湿度', '温度'],
-          textStyle: {
-            color: 'white'
-          }
+          data: ['机器人电量', '湿度', '温度']
         },
         series: [{
           name: '机器人电量', itemStyle: {
@@ -183,9 +186,9 @@ export default {
           type: 'line',
           itemStyle: {
             normal: {
-              color: '#3888fa',
+              color: '#blue',
               lineStyle: {
-                color: '#45E4A5',
+                color: 'red',
                 width: 2
               }
             }
