@@ -31,3 +31,11 @@ export function addUser(data) {
     data
   })
 }
+
+export function find(params) {
+  return request({
+    url: 'robot/find',
+    method: 'get',
+    params
+  })
+}

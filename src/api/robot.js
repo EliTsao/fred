@@ -52,3 +52,27 @@ export function robotupdate(data) {
     }
   })
 }
+
+export function getAppVersion(params) {
+  return request({
+    url: 'command/getAppVersion',
+    method: 'get',
+    params
+  })
+}
+
+export function interruptCycle(params) {
+  return request({
+    url: 'command/interruptCycle',
+    method: 'get',
+    params
+  })
+}
+
+export function uploadCycle(params) {
+  return request({
+    url: 'uploadCycle',
+    method: 'get',
+    params
+  })
+}

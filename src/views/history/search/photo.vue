@@ -25,29 +25,25 @@
           placeholder="选择日期时间"
           value-format="yyyy-MM-dd"
         />
+        <!-- 在哪 -->
         <el-button
           type="primary"
           icon="el-icon-search"
           @click="searchTab()"
         >搜索</el-button>
-        <el-button
-          type="primary"
-          class="btnStyle1"
-          @click="excelDow"
-        >导出Excel文件</el-button>
       </div>
       <el-table :data="tableData" border stripe>
-        <el-table-column prop="id" label="线路编号" />
+        <el-table-column prop="id" label="图片编号" />
         <el-table-column prop="lineName" label="线路名称" />
         <el-table-column prop="robotSerialNumber" label="机器人编号" />
         <el-table-column prop="robotName" label="机器人名称" />
-        <el-table-column prop="towerNumber" label="塔号" />
-        <el-table-column prop="robotPosition" label="距离" />
-        <el-table-column prop="environmentTemperature" label="环境温度" />
-        <el-table-column prop="humidity" label="湿度值" />
-        <el-table-column prop="power" label="机器人电量" />
         <el-table-column prop="createTime" label="创建时间" />
-        <el-table-column prop="img" label="抓取图片" />
+        <el-table-column prop="userName" label="抓图人" />
+        <el-table-column prop="imageUrl" label="抓取图片">
+          <template slot-scope="scope">
+            <img:src="scope.row.imageUrl" />
+          </template>
+        </el-table-column>
       </el-table>
       <el-pagination
         background
@@ -65,7 +61,6 @@
 </template>
 
 <script>
-import axios from 'axios'
 import { imageData } from '@/api/history'
 
 export default {
@@ -109,12 +104,6 @@ export default {
     this.imageData()
   },
   methods: {
-    excelDow(params) {
-      axios.get('http://192.168.31.16:10010/realTimeExcel', {
-        params: {
-        }
-      })
-    },
     handleSize(val) {
       this.pageSize = val
       this.getPageData()
@@ -139,6 +128,9 @@ export default {
       const start = (this.currentPage - 1) * this.pageSize
       const end = start + this.pageSize
       this.tableData = this.schArr.slice(start, end)
+    },
+    excelDow() {
+
     }
   }
 }

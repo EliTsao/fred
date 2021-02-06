@@ -13,9 +13,8 @@
         <el-input
           v-model.trim="form.password"
           type="password"
-          autocomplete="off"
-        />
-      </el-form-item>
+          auto-complete="on"
+        /></el-form-item>
       <el-form-item label="电话号码" prop="phone">
         <el-input v-model.trim="form.phone" autocomplete="off" />
       </el-form-item>

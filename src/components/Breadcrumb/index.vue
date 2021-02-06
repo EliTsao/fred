@@ -33,7 +33,7 @@ export default {
       const first = matched[0]
 
       if (!this.ismangement(first)) {
-        matched = [{ path: '/mangement', meta: { title: '福瑞德电力管理系统' }}].concat(matched)
+        matched = [{ path: '/', meta: { title: '福瑞德电力管理系统' }}].concat(matched)
       }
 
       this.levelList = matched.filter(item => item.meta && item.meta.title && item.meta.breadcrumb !== false)

@@ -1,3 +1,4 @@
+/* eslint-disable handle-callback-err */
 <template>
   <div class="className">
     <el-card class="anoCard">
@@ -28,8 +29,6 @@
           icon="el-icon-circle-plus-outline"
           @click="addTab"
         >添加机器人</el-button>
-        <el-button type="text" @click="open">查询版本信息</el-button>
-        <el-button @click="upload">文件上传</el-button>
       </div>
       <el-table :data="tableData" border stripe>
         <el-table-column prop="robotName" label="机器人编号" />
@@ -43,16 +42,35 @@
         <el-table-column prop="walkPattern" label="行走状态" />
         <el-table-column prop="lineName" label="所在线路" />
         <el-table-column prop="management" label="管理">
-          <template slot-scope="scope">
-            <el-button
-              type="primary"
-              @click="editTable(scope.$index, scope.row)"
-            >编辑</el-button>
-            <el-button
-              type="warning"
-              :disabled="scope.row.status === 1 ? false : true"
-              @click="toConfirm(scope.row)"
-            >审核</el-button>
+          <template #default="{ row }">
+            <el-button @click="upload(row)">文件上传</el-button>
+            <el-button @click="getApp(row)">版本信息查询</el-button>
+
+            <el-button @click="dialogFormVisible = true">设置通信时间</el-button>
+            <el-dialog title="设置通信时间" :visible.sync="dialogFormVisible">
+              <el-form :model="uploadCycleform">
+                <el-form-item label="设置时长" :label-width="formLabelWidth">
+                  <el-input v-model="form.cycle" autocomplete="off" />
+                </el-form-item>
+              </el-form>
+              <div slot="footer" class="dialog-footer">
+                <el-button @click="dialogFormVisible = false">取 消</el-button>
+                <el-button type="primary" @click="uploadCycle(row)">确 定</el-button>
+              </div>
+            </el-dialog>
+
+            <el-button @click="dialogFormVisible = true">设置机器人停止时间</el-button>
+            <el-dialog title="设置通信时间" :visible.sync="dialogFormVisible">
+              <el-form :model="interruptCycleform">
+                <el-form-item label="设置时长" :label-width="formLabelWidth">
+                  <el-input v-model="form.cycle" autocomplete="off" />
+                </el-form-item>
+              </el-form>
+              <div slot="footer" class="dialog-footer">
+                <el-button @click="dialogFormVisible = false">取 消</el-button>
+                <el-button type="primary" @click="interrupCycle(row)">确 定</el-button>
+              </div>
+            </el-dialog>
           </template>
         </el-table-column>
       </el-table>
@@ -72,10 +90,37 @@
 </template>
 
 <script>
-import { findAll, upload } from '@/api/robot'
+import { findAll, upload, getAppVersion, uploadCycle, interruptCycle } from '@/api/robot'
 export default {
   data() {
     return {
+      dialogFormVisible: false,
+      form: {
+        cycle: '',
+        delivery: false,
+        type: [],
+        resource: '',
+        desc: ''
+      },
+      uploadCycleform: {
+        name: '',
+        cycle: '',
+        delivery: false,
+        type: [],
+        resource: '',
+        desc: ''
+      },
+      interruptCycleform: {
+        cycle: '',
+        region: '',
+        date1: '',
+        date2: '',
+        delivery: false,
+        type: [],
+        resource: '',
+        desc: ''
+      },
+      formLabelWidth: '120px',
       tableData: [],
       allList: [],
       schArr: [],
@@ -96,18 +141,6 @@ export default {
     this.findAll()
   },
   methods: {
-    open() {
-      this.$alert('这是一段内容', '标题名称', {
-        confirmButtonText: '确定',
-        callback: action => {
-          this.$message({
-            type: 'info',
-            message: `action: ${action}`
-          })
-        }
-      })
-    },
-
     handleSize(val) {
       this.pageSize = val
       this.getPageData()
@@ -115,6 +148,22 @@ export default {
     handlePage(val) {
       this.currentPage = val
       this.getPageData()
+    },
+    interrupCycle(row) {
+      const serialNumber = row.serialNumber
+      const cycle = this.form.cycle
+      interruptCycle({
+        serialNumber: serialNumber,
+        cycle: cycle
+      })
+    },
+    uploadCycle(row) {
+      const serialNumber = row.serialNumber
+      const cycle = this.uploadCycleform.cycle
+      uploadCycle({
+        serialNumber: serialNumber,
+        cycle: cycle
+      })
     },
     findAll() {
       findAll()
@@ -133,8 +182,18 @@ export default {
       const end = start + this.pageSize
       this.tableData = this.schArr.slice(start, end)
     },
-    upload() {
-      upload()
+    upload(row) {
+      const serialNumber = row.serialNumber
+      upload({
+        serialNumber: serialNumber
+      })
+    },
+    getApp(row) {
+    // getAppVersion()
+      const serialNumber = row.serialNumber
+      getAppVersion({
+        serialNumber: serialNumber
+      })
     }
   }
 }

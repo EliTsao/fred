@@ -23,3 +23,19 @@ export function imageData(params) {
     }
   })
 }
+
+export function excelDow(params) {
+  return request({
+    url: 'realTimeExcel',
+    method: 'get',
+    responseType: 'blob'
+  })
+}
+
+export function tmData(params) {
+  return request({
+    url: 'tmData',
+    method: 'get',
+    responseType: 'blob'
+  })
+}

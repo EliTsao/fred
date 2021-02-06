@@ -112,6 +112,17 @@ export default {
     initChart() {
       this.chart = echarts.init(this.$el, 'macarons')
       this.chart.setOption({
+        title: {
+          text: '机器人趋势图线',
+          left: 'center',
+          top: 'top',
+          textStyle: {
+            fontSize: 30
+          },
+          subtextStyle: {
+            fontSize: 20
+          }
+        },
         toolbox: {
           show: true,
           feature: {
@@ -145,6 +156,9 @@ export default {
           }
         },
         legend: {
+          textStyle: {
+            fontSize: 18
+          },
           data: ['机器人电量', '湿度', '温度']
         },
         series: [{

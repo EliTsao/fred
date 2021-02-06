@@ -116,6 +116,7 @@
 </template>
 
 <script>
+import axios from 'axios'
 import { getReplay } from '@/api/replay'
 export default {
   filters: {

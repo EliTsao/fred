@@ -44,18 +44,22 @@ export const constantRoutes = [
     component: () => import('@/views/404'),
     hidden: true
   },
-
+  {
+    path: '/mainpage2',
+    name: 'hh',
+    component: () => import('@/views/mainpage/2'),
+    hidden: true
+  },
   {
     path: '/',
     component: Layout,
     children: [{
-      path: 'index',
+      path: '/',
       name: 'mainpage',
       component: () => import('@/views/mainpage/index'),
       meta: { title: '系统首页', icon: 'el-icon-s-home' }
     }]
   },
-
   {
     path: '/form',
     component: Layout,
@@ -73,23 +77,22 @@ export const constantRoutes = [
         name: 'role',
         component: () => import('@/views/role/index'),
         meta: { title: '角色管理' }
+
       }
     ]
   },
-
-  {
-    path: '/settings',
-    component: Layout,
-    children: [
-      {
-        path: 'index',
-        name: 'settings',
-        component: () => import('@/views/seetings/index'),
-        meta: { title: '系统设置' }
-      }
-    ]
-  },
-
+  // {
+  //   path: '/settings',
+  //   component: Layout,
+  //   children: [
+  //     {
+  //       path: 'index',
+  //       name: 'settings',
+  //       component: () => import('@/views/seetings/index'),
+  //       meta: { title: '系统设置' }
+  //     }
+  //   ]
+  // },
   {
     path: '/management',
     component: Layout,
@@ -178,7 +181,7 @@ export const constantRoutes = [
 ]
 
 const createRouter = () => new Router({
-  // mode: 'history', // require service support
+  mode: 'hash', // require service support
   scrollBehavior: () => ({ y: 0 }),
   routes: constantRoutes
 })

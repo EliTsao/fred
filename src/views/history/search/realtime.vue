@@ -47,7 +47,6 @@
         <el-table-column prop="humidity" label="湿度值" />
         <el-table-column prop="power" label="机器人电量" />
         <el-table-column prop="createTime" label="创建时间" />
-        <el-table-column prop="img" label="抓取图片" />
       </el-table>
       <el-pagination
         background
@@ -65,8 +64,7 @@
 </template>
 
 <script>
-import axios from 'axios'
-import { robotData } from '@/api/history'
+import { robotData, excelDow } from '@/api/history'
 
 export default {
   data() {
@@ -109,9 +107,22 @@ export default {
     this.robotData()
   },
   methods: {
-    excelDow(params) {
-      axios.get('http://192.168.31.16:10010/realTimeExcel', {
-        params: {
+    excelDow() {
+      excelDow().then(res => {
+        if (res.status === 200) {
+          const blob = res.data
+          const fileReader = new FileReader() // FileReader 对象允许Web应用程序异步读取存储在用户计算机上的文件的内容
+          fileReader.readAsDataURL(blob) // 开始读取指定的Blob中的内容。一旦完成，result属性中将包含一个data: URL格式的Base64字符串以表示所读取文件的内容
+          fileReader.onload = (event) => { // 处理load事件。该事件在读取操作完成时触发
+            // 新建个下载的a标签，完成后移除。
+            const a = document.createElement('a')
+            const _fileName = '实时数据.xls'
+            a.download = _fileName
+            a.href = event.target.result
+            document.body.appendChild(a)
+            a.click()
+            document.body.removeChild(a)
+          }
         }
       })
     },

@@ -55,7 +55,6 @@ import { getRoutes, getRoles, addRole, deleteRole, updateRole } from '@/api/role
 const defaultRole = {
   key: '',
   name: '',
-  description: '',
   routes: []
 }
 export default {
@@ -80,7 +79,7 @@ export default {
   },
   computed: {
     routesData() {
-      return this.routes.name
+      return this.routes
     }
   },
   created() {
@@ -91,7 +90,7 @@ export default {
   methods: {
     async getRoutes() {
       const res = await getRoutes()
-      this.serviceRoutes = res.data
+      this.routesData = res.data.name
       this.routes = this.generateRoutes(res.data)
     },
     async getRoles() {

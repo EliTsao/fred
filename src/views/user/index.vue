@@ -1,93 +1,84 @@
 <template>
-  <div class="userManagement-container">
-    <el-form :inline="true" :model="queryForm" @submit.native.prevent>
-      <el-form-item>
-        <el-input
-          v-model.trim="queryForm.username"
-          placeholder="请输入用户名"
+  <div class="className">
+    <el-card class="anoCard">
+      <div slot="header">
+        <span>用户管理</span>
+      </div>
+      <div class="searchDiv">
+        <el-select
+          v-model="sch_status"
           clearable
-        />
-      </el-form-item>
-      <el-form-item>
-        <el-button icon="el-icon-search" type="primary" @click="queryData">
-          查询
-        </el-button>
-      </el-form-item>
-      <el-button icon="el-icon-plus" type="primary" @click="handleEdit">
-        添加
-      </el-button>
-    </el-form>
-    <el-table
-      v-loading="listLoading"
-      :data="list"
-      :element-loading-text="elementLoadingText"
-      @selection-change="setSelectRows"
-    >
-      <el-table-column show-overflow-tooltip type="selection" />
-      <el-table-column
-        show-overflow-tooltip
-        prop="id"
-        label="id"
+          class="width1"
+          placeholde="请选择查询项目"
+        >
+          <el-option
+            v-for="item in options"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value"
+          />
+        </el-select>
+        <el-button
+          type="primary"
+          icon="el-icon-search"
+          @click="queryData"
+        >搜索</el-button>
+        <el-button
+          type="primary"
+          icon="el-icon-user"
+          @click="handleEdit"
+        >添加用户</el-button>
+      </div>
+      <el-table :data="list" border stripe>
+        <el-table-column prop="serialNumber" label="工号" />
+        <el-table-column prop="userName" label="用户名" />
+        <el-table-column prop="phone" label="电话号码" />
+        <el-table-column show-overflow-tooltip label="操作" width="200">
+          <template #default="{ row }">
+            <el-button type="text" @click="handleEdit(row)">编辑</el-button>
+            <el-button type="text" @click="handleDelete(row)">删除</el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+      <el-pagination
+        background
+        layout="total, sizes, prev, pager, next"
+        :page-sizes="pageSizes"
+        :page-size="pageSize"
+        :current-page="currentPage"
+        :total="total"
+        class="fyDiv"
+        @size-change="handleSize"
+        @current-change="handlePage"
       />
-      <el-table-column
-        show-overflow-tooltip
-        prop="userName"
-        label="用户名"
-      />
-      <el-table-column
-        show-overflow-tooltip
-        prop="phone"
-        label="电话号码"
-      />
-
-      <el-table-column show-overflow-tooltip label="权限">
-        <template #default="{ row }">
-          <el-tag v-for="(item, index) in row.permissions" :key="index">
-            {{ item }}
-          </el-tag>
-        </template>
-      </el-table-column>
-
-      <el-table-column show-overflow-tooltip label="操作" width="200">
-        <template #default="{ row }">
-          <el-button type="text" @click="handleEdit(row)">编辑</el-button>
-          <el-button type="text" @click="handleDelete(row)">删除</el-button>
-        </template>
-      </el-table-column>
-    </el-table>
-    <el-pagination
-      background
-      :current-page="queryForm.pageNo"
-      :page-size="queryForm.pageSize"
-      :layout="layout"
-      :total="total"
-      @size-change="handleSizeChange"
-      @current-change="handleCurrentChange"
-    />
+    </el-card>
     <edit ref="edit" @fetch-data="fetchData" />
   </div>
 </template>
 
 <script>
-import { getList, doDelete } from '@/api/userManagement'
+
+import { getList, doDelete, find } from '@/api/userManagement'
 import Edit from '@/views/user/components/userManagementEdit'
 
 export default {
-  name: 'UserManagement',
   components: { Edit },
   data() {
     return {
-      list: null,
-      listLoading: true,
-      layout: 'total, sizes, prev, pager, next, jumper',
       total: 0,
-      selectRows: '',
-      elementLoadingText: '正在加载...',
-      queryForm: {
-        pageNo: 1,
-        pageSize: 10,
-        username: ''
-      }
+      totalPage: 1,
+      tableData: [],
+      list: null,
+      schArr: [],
+      sch_order: '',
+      sch_status: null,
+      sch_date: null,
+      currentPage: 1,
+      pageSize: 10,
+      pageSizes: [10, 20, 30, 40],
+      diaIsShow: false,
+      formData: {},
+      editType: ''
     }
   },
   created() {
@@ -119,10 +110,14 @@ export default {
             userId: userId
           }).then(res => {
             console.log(res)
+            if (res.meta.status !== 201) return this.$message.error('删除用户失败')
+            // 修改成功的提示
+            else this.$message.success('删除用户成功')
             this.getList() // 重新获取用户数据
           })
         })
         .catch(() => {
+          return this.$message.info('已经取消删除')
           // 取消
         })
     },
@@ -134,10 +129,18 @@ export default {
       this.queryForm.pageNo = val
       this.fetchData()
     },
-    queryData() {
-      this.queryForm.pageNo = 1
-      this.fetchData()
+    queryData(value) {
+      console.log(this.queryForm.username)
+      const params = {
+        id: parseInt(this.queryForm.username)
+      }
+      find(params).then(res => {
+        console.log(res)
+      })
+      // this.queryForm.pageNo = 1
+      this.fetchData(this.queryForm.username)
     },
+
     async fetchData() {
       this.listLoading = true
       const { data, totalCount } = await getList(this.queryForm)
@@ -150,3 +153,30 @@ export default {
   }
 }
 </script>
+<style lang="scss" scoped>
+.fyDiv {
+  float: right;
+  margin-top: 30px;
+  padding-bottom: 20px;
+}
+.anoCard .el-table .el-button {
+  padding: 8px 18px;
+  font-size: 12px;
+}
+.searchDiv {
+  margin-bottom: 20px;
+  .el-button {
+    padding: 11px 20px;
+  }
+}
+.width1 {
+  width: 180px;
+  margin-right: 10px;
+}
+.diaForm {
+  .el-input {
+    width: 350px;
+  }
+}
+</style>
+<style lang="scss">
