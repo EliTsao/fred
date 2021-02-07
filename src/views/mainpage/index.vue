@@ -105,7 +105,7 @@
           </div>
           <div class="tools">
             <div class="select">
-              <el-select v-model="value" placeholder="请选择工作状态" size="20">
+              <el-select v-model="value" placeholder="请选择工作状态" style="width:150px">
                 <el-option
                   v-for="item in options"
                   :key="item.value"
@@ -200,7 +200,7 @@ export default {
     this.channelNum = 2
     this.init
     this.webSocketConnect()
-    this.serialNumber = 65535
+    this.serialNumber = 1
     this.ctx = document.getElementById('canvas').getContext('2d')
     var player1 = new WasmPlayer(this.videoUrl1, 'wasmPlayer1', this.callbackfun, {
       Height: true
@@ -244,7 +244,6 @@ export default {
         this.stompClient.subscribe('/alarm', res => {
           const data = JSON.parse(JSON.parse(JSON.stringify(res)).body).data
           this.error = data
-          console.log('------' + data)
           console.log(res)
         })
         // 订阅机器人实时消息
@@ -267,14 +266,15 @@ export default {
       if (this.robotData.walkPattern !== '点动') {
         this.walkon()
       } else {
-        this.walkon()
         mousedown.start = new Date().getTime()
         mousedown.timer = setInterval(function() {
           mousedown.end = new Date().getTime()
+          this.walkon()
           if (mousedown.end - mousedown.start > 1000) {
             clearInterval(mousedown.timer)
+            this.walkon()
           }
-        }, 100)
+        }, 800)
       }
     },
     mouseup() {
@@ -292,9 +292,9 @@ export default {
         mousedown.timer = setInterval(function() {
           mousedown.end = new Date().getTime()
           if (mousedown.end - mousedown.start > 1000) {
-            clearInterval(mousedown.timer)
+            this.walkback()
           }
-        }, 100)
+        }, 1000)
       }
     },
     // 前进
@@ -377,6 +377,13 @@ export default {
       this.ctx.strokeStyle = 'red'
       this.ctx.stroke()
     },
+    // 修改工作模式
+    workPattern: function name(params) {
+      workPattern({
+        pattern: this.value,
+        serialNumber: this.serialNumber
+      })
+    },
     // 抓图
     captureImage: function(item) {
       captureImage({
@@ -425,7 +432,7 @@ export default {
       }).then(res => {
         console.log(res)
         // 弹出提示框
-        if (res.meta.status !== 201) return this.$message.error('操作失败')
+        if (res.meta.status !== 200) return this.$message.error('操作失败')
         else this.$message.success('操作成功')
       })
     },

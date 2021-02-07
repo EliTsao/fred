@@ -5,27 +5,15 @@
         <span>图片查询</span>
       </div>
       <div class="searchDiv">
-        <el-select
-          v-model="sch_status"
-          clearable
-          class="width1"
-          placeholde="请选择查询项目"
-        >
-          <el-option
-            v-for="item in options"
-            :key="item.value"
-            :label="item.label"
-            :value="item.value"
-          />
-        </el-select>
+        <el-input v-model="name" placeholder="请输入机器人名称" style="width:200px" />
+        <el-input v-model="user" placeholder="请输入操作人信息" style="width:200px" />
         <el-date-picker
-          v-model="sch_date"
-          class="width1"
-          type="date"
-          placeholder="选择日期时间"
-          value-format="yyyy-MM-dd"
+          v-model="value1"
+          type="daterange"
+          range-separator="至"
+          start-placeholder="开始日期"
+          end-placeholder="结束日期"
         />
-        <!-- 在哪 -->
         <el-button
           type="primary"
           icon="el-icon-search"
@@ -33,15 +21,14 @@
         >搜索</el-button>
       </div>
       <el-table :data="tableData" border stripe>
-        <el-table-column prop="id" label="图片编号" />
-        <el-table-column prop="lineName" label="线路名称" />
-        <el-table-column prop="robotSerialNumber" label="机器人编号" />
+        <el-table-column prop="lineName" label="所属线路" />
         <el-table-column prop="robotName" label="机器人名称" />
         <el-table-column prop="createTime" label="创建时间" />
-        <el-table-column prop="userName" label="抓图人" />
-        <el-table-column prop="imageUrl" label="抓取图片">
-          <template slot-scope="scope">
-            <img:src="scope.row.imageUrl" />
+        <el-table-column prop="userName" label="操作人员" />
+        <el-table-column show-overflow-tooltip label="操作" width="200">
+          <template #default="{ row }">
+            <el-button type="text" @click="handleEdit(row)">编辑</el-button>
+            <el-button type="text" @click="handleDelete(row)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>

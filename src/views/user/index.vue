@@ -58,7 +58,7 @@
 
 <script>
 
-import { getList, doDelete, find } from '@/api/userManagement'
+import { getList, doDelete, find, updateUser } from '@/api/userManagement'
 import Edit from '@/views/user/components/userManagementEdit'
 
 export default {
@@ -110,7 +110,7 @@ export default {
             userId: userId
           }).then(res => {
             console.log(res)
-            if (res.meta.status !== 201) return this.$message.error('删除用户失败')
+            if (res.meta.status !== 200) return this.$message.error('删除用户失败')
             // 修改成功的提示
             else this.$message.success('删除用户成功')
             this.getList() // 重新获取用户数据
@@ -120,6 +120,9 @@ export default {
           return this.$message.info('已经取消删除')
           // 取消
         })
+    },
+    updateUser(data) {
+      updateUser
     },
     handleSizeChange(val) {
       this.queryForm.pageSize = val

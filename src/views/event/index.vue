@@ -136,7 +136,7 @@ export default {
       const start = (this.currentPage - 1) * this.pageSize
       const end = start + this.pageSize
       this.tableData = this.schArr.slice(start, end)
-    },
+    }
     // 查询
   }
 }

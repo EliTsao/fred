@@ -6,47 +6,25 @@
         <span>机器人管理</span>
       </div>
       <div class="searchDiv">
-        <el-select
-          v-model="sch_status"
-          clearable
-          class="width1"
-          placeholde="请选择状态"
-        >
-          <el-option
-            v-for="item in options"
-            :key="item.value"
-            :label="item.label"
-            :value="item.value"
-          />
-        </el-select>
-        <el-button
-          type="primary"
-          icon="el-icon-search"
-          @click="searchTab()"
-        >搜索</el-button>
         <el-button
           type="primary"
           icon="el-icon-circle-plus-outline"
-          @click="addTab"
+          @click="robotadd"
         >添加机器人</el-button>
       </div>
       <el-table :data="tableData" border stripe>
-        <el-table-column prop="robotName" label="机器人编号" />
-        <el-table-column prop="serialNumber" label="机器人序列号" />
-        <el-table-column prop="address" label="所在位置" />
-        <el-table-column prop="walkDirection" label="行走方向" />
-        <el-table-column prop="power" label="剩余电量" />
-        <el-table-column prop="workState" label="工作状态" />
-        <el-table-column prop="networkState" label="网络连接情况状态" />
-        <el-table-column prop="speed" label="速度" />
-        <el-table-column prop="walkPattern" label="行走状态" />
-        <el-table-column prop="lineName" label="所在线路" />
-        <el-table-column prop="management" label="管理">
+        <el-table-column prop="robotName" label="机器人名称" />
+        <el-table-column prop="serialNumber" label="机器人编号" />
+        <el-table-column prop="power" label="电量" />
+        <el-table-column prop="refreshRate" label="更新频率" />
+        <el-table-column prop="networkState" label="网络状态" />
+        <el-table-column prop="interruptTime" label="通信中断周期" />
+        <el-table-column prop="management" label="管理" width="400px">
           <template #default="{ row }">
-            <el-button @click="upload(row)">文件上传</el-button>
-            <el-button @click="getApp(row)">版本信息查询</el-button>
+            <el-button @click="upload(row)">编辑</el-button>
+            <el-button @click="getApp(row)">更新固件</el-button>
 
-            <el-button @click="dialogFormVisible = true">设置通信时间</el-button>
+            <el-button @click="dialogFormVisible = true">删除</el-button>
             <el-dialog title="设置通信时间" :visible.sync="dialogFormVisible">
               <el-form :model="uploadCycleform">
                 <el-form-item label="设置时长" :label-width="formLabelWidth">
@@ -91,6 +69,7 @@
 
 <script>
 import { findAll, upload, getAppVersion, uploadCycle, interruptCycle } from '@/api/robot'
+// import Edit from '@/views/management/robotManagementEdit'
 export default {
   data() {
     return {
@@ -149,6 +128,9 @@ export default {
       this.currentPage = val
       this.getPageData()
     },
+    robotadd(){
+
+    },
     interrupCycle(row) {
       const serialNumber = row.serialNumber
       const cycle = this.form.cycle
@@ -176,6 +158,9 @@ export default {
         .catch(error => {
           this.$message.error(error.message)
         })
+    },
+    robotadd() {
+
     },
     getPageData() {
       const start = (this.currentPage - 1) * this.pageSize

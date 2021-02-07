@@ -1,16 +1,18 @@
 import request from '@/utils/request'
 
-export function robotData() {
+export function robotData(params) {
   return request({
     url: 'history/robotData',
-    method: 'get'
+    method: 'get',
+    params
   })
 }
 
 export function temperatureData(params) {
   return request({
     url: '/history/temperatureData',
-    method: 'get'
+    method: 'get',
+    params
   })
 }
 

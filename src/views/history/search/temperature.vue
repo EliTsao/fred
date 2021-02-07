@@ -5,37 +5,25 @@
         <span>实时数据查询</span>
       </div>
       <div class="searchDiv">
-        <el-select
-          v-model="sch_status"
-          clearable
-          class="width1"
-          placeholde="请选择查询项目"
-        >
-          <el-option
-            v-for="item in options"
-            :key="item.value"
-            :label="item.label"
-            :value="item.value"
-          />
-        </el-select>
+        <el-input v-model="name" placeholder="请输入机器人名称" style="width:200px" />
+        <el-input v-model="user" placeholder="请输入操作人信息" style="width:200px" />
         <el-date-picker
-          v-model="sch_date"
-          class="width1"
-          type="date"
-          placeholder="选择日期时间"
-          value-format="yyyy-MM-dd"
+          v-model="value1"
+          type="daterange"
+          range-separator="至"
+          start-placeholder="开始日期"
+          end-placeholder="结束日期"
         />
         <el-button
           type="primary"
           icon="el-icon-search"
-          @click="searchTab()"
+          @click="temperatureData"
         >搜索</el-button>
         <el-button
           type="primary"
           class="btnStyle1"
           @click="excelDow"
         >导出Excel文件</el-button>
-        <el-button type="primary" @click="test">测试</el-button>
       </div>
       <el-table :data="tableData" border stripe>
         <el-table-column prop="id" label="线路编号" />
@@ -66,7 +54,6 @@
 
 <script>
 import { temperatureData, tmData } from '@/api/history'
-import axios from 'axios'
 export default {
   filters: {
     statusText(val) {
@@ -102,6 +89,9 @@ export default {
       totalPage: 1,
       items: {
       },
+      name: '',
+      user: '',
+      value1: '',
       tableData: [],
       allList: [],
       schArr: [],
@@ -168,7 +158,10 @@ export default {
       this.getPageData()
     },
     temperatureData() {
-      temperatureData()
+      temperatureData({
+        robotName: this.name,
+        userName: this.user
+      })
         .then(res => {
           this.allList = res.data.items
           this.schArr = this.allList

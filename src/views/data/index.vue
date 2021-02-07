@@ -9,6 +9,7 @@
 </template>
 
 <script>
+
 import echarts from 'echarts'
 require('echarts/theme/macarons') // echarts theme
 import resize from '../../components/Charts/mixins/resize'
@@ -23,7 +24,7 @@ export default {
     },
     width: {
       type: String,
-      default: '1200px'
+      default: '600px'
     },
     height: {
       type: String,
@@ -113,14 +114,11 @@ export default {
       this.chart = echarts.init(this.$el, 'macarons')
       this.chart.setOption({
         title: {
-          text: '机器人趋势图线',
+          // text: '机器人趋势图线',
           left: 'center',
           top: 'top',
           textStyle: {
             fontSize: 30
-          },
-          subtextStyle: {
-            fontSize: 20
           }
         },
         toolbox: {
@@ -157,7 +155,7 @@ export default {
         },
         legend: {
           textStyle: {
-            fontSize: 18
+            fontSize: 30
           },
           data: ['机器人电量', '湿度', '温度']
         },
@@ -217,8 +215,7 @@ export default {
   }
 }
 </script>
-
-<style lang="scss" scoped>
+<style lang="scss">
 .chart-container {
   position: relative;
   width: 100%;
@@ -234,4 +231,11 @@ export default {
     display: block;
   }
 }
+.diaForm .el-form-item__label {
+  padding-right: 20px;
+}
+.searchDiv [class^='el-icon'] {
+  color: #fff;
+}
+
 </style>

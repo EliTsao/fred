@@ -9,7 +9,7 @@
           v-model="sch_status"
           clearable
           class="width1"
-          placeholde="机器人"
+          placeholde="请选择录像"
         >
           <el-option
             v-for="item in options"
@@ -23,20 +23,28 @@
           class="width1"
           type="date"
           placeholder="选择日期时间"
-          value-format="yyyy-MM-dd"
+          value-format="yyyyMMdd"
         />
         <el-button
           type="primary"
           icon="el-icon-search"
           @click="searchTab()"
         >搜索</el-button>
+        <el-button
+          type="primary"
+          icon="el-icon-circle-plus-outline"
+          @click="addTab"
+        >开始录像</el-button>
+        <el-button
+          type="primary"
+          icon="el-icon-circle-plus-outline"
+          @click="stop"
+        >停止录像</el-button>
       </div>
       <el-table :data="tableData" border stripe>
-        <el-table-column prop="id" label="通道号" />
-        <el-table-column prop="order" label="通道名称" />
-        <el-table-column prop="time" label="更新时间" />
-        <el-table-column prop="phone" label="查看录像" />
-        <el-table-column prop="name" label="删除录像" />
+        <el-table-column prop="startAt" label="录像时间" />
+        <el-table-column prop="duration" label="录像总时长" />
+        <el-table-column prop="phone" label="联系电话" />
       </el-table>
       <el-pagination
         background
@@ -50,51 +58,29 @@
         @current-change="handlePage"
       />
     </el-card>
-    <el-dialog title="订单修改" :visible.sync="diaIsShow" class="diaForm">
+    <el-dialog title="录像设定" :visible.sync="diaIsShow" class="diaForm">
       <el-form
         ref="diaForm"
         :model="formData"
         :rules="rules"
         label-width="140px"
       >
-        <el-form-item label="订单号">
+        <el-form-item label="设置录像时长(s)" prop="duration">
           <el-input
-            v-model="formData.order"
+            v-model="formData.recordtime"
             type="text"
-            :disabled="true"
+            placeholder="请输入录像时长"
           />
         </el-form-item>
-        <el-form-item label="订单时间" prop="time">
-          <el-date-picker
-            v-model="formData.time"
-            type="datetime"
-            placeholder="选择日期时间"
-            value-format="yyyy-MM-dd HH:mm:ss"
-          />
-        </el-form-item>
-        <el-form-item label="配送地址" prop="address">
+        <el-form-item label="保存时长（天）" prop="savedays">
           <el-input
-            v-model="formData.address"
+            v-model="formData.alltime"
             type="text"
-            placeholder="请输入地址"
+            placeholder="请输入录像保存时长"
           />
         </el-form-item>
-        <el-form-item label="联系电话" prop="phone">
-          <el-input
-            v-model="formData.phone"
-            type="text"
-            placeholder="请输入电话"
-          />
-        </el-form-item>
-        <el-form-item label="配送员" prop="name">
-          <el-input
-            v-model="formData.name"
-            type="text"
-            placeholder="请输入姓名"
-          />
-        </el-form-item>
-        <el-form-item label="状态" prop="status">
-          <el-select v-model="formData.status" placeholde="请选择状态">
+        <el-form-item label="选择录像通道" prop="status">
+          <el-select v-model="formData.line" placeholde="请选择通道">
             <el-option
               v-for="item in options"
               :key="item.value"
@@ -106,7 +92,7 @@
         <el-form-item>
           <el-button
             type="primary"
-            @click="changeTab('diaForm', editType)"
+            @click="start"
           >确认</el-button>
           <el-button @click="diaIsShow = false">取消</el-button>
         </el-form-item>
@@ -117,7 +103,6 @@
 
 <script>
 import axios from 'axios'
-import { getReplay } from '@/api/replay'
 export default {
   filters: {
     statusText(val) {
@@ -147,6 +132,8 @@ export default {
   },
   data() {
     return {
+      player: '',
+      url: [],
       tableData: [],
       allList: [],
       schArr: [],
@@ -161,10 +148,10 @@ export default {
       formData: {},
       editType: '',
       options: [
-        { label: '待审核', value: 1 },
-        { label: '配送中', value: 2 },
-        { label: '已完成', value: 0 },
-        { label: '已取消', value: 3 }
+        { label: '主摄像头', value: 1 },
+        { label: '热成像图', value: 2 },
+        { label: '前轮摄像头', value: 0 },
+        { label: '后轮摄像头', value: 3 }
       ],
       rowIndex: 0,
       rules: {
@@ -181,13 +168,13 @@ export default {
         phone: [{ required: true, message: '请输入联系方式', trigger: 'blur' }],
         name: [{ required: true, message: '请输入姓名', trigger: 'blur' }],
         status: [
-          { required: true, message: '请选择订单状态', trigger: 'change' }
+          { required: true, message: '请选择录像通道', trigger: 'change' }
         ]
       }
     }
   },
   created() {
-    this._getReplay()
+    this._getPageTab2()
   },
   methods: {
     handleSize(val) {
@@ -198,127 +185,49 @@ export default {
       this.currentPage = val
       this.getPageData()
     },
-    _getReplay() {
-      getReplay()
-        .then(res => {
-          this.allList = res.data.tableList
-          this.schArr = this.allList
-          this.getPageData()
-          this.total = res.data.total
-        })
-        .catch(error => {
-          this.$message.error(error.message)
-        })
-    },
     getPageData() {
       const start = (this.currentPage - 1) * this.pageSize
       const end = start + this.pageSize
       this.tableData = this.schArr.slice(start, end)
     },
+    // 开始录像
+    // 开始录像
+    start(data) {
+      axios.get('http://39.104.53.187:10810/nvc/server/api/v1/startrecord', {
+        params: {
+          channel: this.formData.line,
+          duration: this.formData.recordtime,
+          savedays: this.formData.alltime
+        }
+      }).then(response => {
+        // 请求成功
+        const res = response.data
+        console.log(res)
+      }).catch(error => {
+        // 请求失败，
+        console.log(error)
+      })
+    },
+    // 停止录像
+    stop() {
+
+    },
     // 查找
     searchTab() {
-      let arrList = []
-      for (const item of this.allList) {
-        if (
-          this.sch_order.trim() === '' &&
-          this.sch_status === null &&
-          this.sch_date === null
-        ) {
-          arrList = this.allList
-          break
-        } else if (
-          item.order.startsWith(this.sch_order) &&
-          (this.sch_status !== null ? item.status === this.sch_status : true) &&
-          (this.sch_date !== null ? item.time.startsWith(this.sch_date) : true)
-        ) {
-          const obj = Object.assign({}, item)
-          arrList.push(obj)
+      axios.get('http://39.104.53.187:10810/nvc/server/api/v1/record/querydaily', {
+        params: {
+          id: this.sch_status,
+          period: this.sch_date
         }
-      }
-      this.schArr = arrList
-      this.total = arrList.length
-      this.currentPage = 1
-      this.pageSize = 10
-      this.getPageData()
-    },
-    // add
-    addTab() {
-      this.formData = {}
-      this.diaIsShow = true
-      this.formData.order = (Math.random() * 10e18).toString()
-      this.formData.id = this.allList.length + 1
-      this.editType = 'add'
-      this.$nextTick(() => {
-        this.$refs.diaForm.clearValidate()
+      }).then(res => {
+        this.allList = res.data.list
+        this.schArr = this.allList
+        this.getPageData()
+        this.total = res.data.total
       })
-    },
-    // 审核
-    toConfirm(row) {
-      row.status = 2
-      this.$notify({
-        title: '成功',
-        message: '审核提交成功',
-        type: 'success'
-      })
-    },
-    // 完成
-    toSuccess(row) {
-      row.status = 0
-      this.$notify({
-        title: '成功',
-        message: '该订单已完成配送',
-        type: 'success'
-      })
-    },
-    // 取消
-    toDelete(row) {
-      row.status = 3
-      this.$notify({
-        title: '成功',
-        message: '已取消该订单',
-        type: 'success'
-      })
-    },
-    // 编辑
-    editTable(index, row) {
-      this.formData = Object.assign({}, row)
-      this.editType = 'update'
-      this.diaIsShow = true
-      this.$nextTick(() => {
-        this.$refs.diaForm.clearValidate()
-      })
-      this.rowIndex = index
-    },
-    changeTab(form, type) {
-      this.$refs[form].validate(valid => {
-        if (valid) {
-          if (type === 'update') {
-            // 改变整个表格数据
-            const start = (this.currentPage - 1) * this.pageSize
-            this.allList[start + this.rowIndex] = Object.assign(
-              {},
-              this.formData
-            )
-            // 解决数组不能通过索引响应数据变化
-            this.$set(
-              this.tableData,
-              this.rowIndex,
-              Object.assign({}, this.formData)
-            )
-            this.$notify({
-              title: '成功',
-              message: '订单已修改成功',
-              type: 'success'
-            })
-          } else {
-            this.tableData.unshift(Object.assign({}, this.formData))
-            this.allList.push(Object.assign({}, this.formData))
-          }
-          this.diaIsShow = false
-        } else {
-          return
-        }
-      })
+        .catch(error => {
+          this.$message.error(error.message)
+        })
     }
   }
 }

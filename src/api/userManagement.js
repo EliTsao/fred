@@ -39,3 +39,12 @@ export function find(params) {
     params
   })
 }
+
+export function updateUser(data) {
+  return request({
+    url: 'robot/updateUser',
+    method: 'put',
+    data
+  })
+  
+}
