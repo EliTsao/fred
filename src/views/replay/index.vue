@@ -208,6 +208,17 @@ export default {
         console.log(error)
       })
     },
+    // add
+    addTab() {
+      this.formData = {}
+      this.diaIsShow = true
+      this.formData.order = (Math.random() * 10e18).toString()
+      this.formData.id = this.allList.length + 1
+      this.editType = 'add'
+      this.$nextTick(() => {
+        this.$refs.diaForm.clearValidate()
+      })
+    },
     // 停止录像
     stop() {
 

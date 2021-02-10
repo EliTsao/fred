@@ -2,7 +2,7 @@ import request from '@/utils/request'
 
 export function captureImage(params) {
   return request({
-    url: '/command/captureImage/',
+    url: 'command/captureImage/',
     method: 'get',
     params
   })
@@ -26,7 +26,7 @@ export function loadCable(params) {
 
 export function repairGroundWire(params) {
   return request({
-    url: '/command/repairGroundWire',
+    url: 'command/repairGroundWire',
     method: 'get',
     params
   })

@@ -63,7 +63,7 @@
           </div>
           <div class="item">
             <div>网络状态：</div>
-            <div />
+            <!-- <div>{{ robotData. }}</div> -->
           </div>
           <div class="item">
             <div>设备消息:</div>
@@ -76,10 +76,6 @@
           <div class="item">
             <div>运动模式</div>
             <div>{{ robotData.walkPattern }}</div>
-          </div>
-          <div class="item">
-            <div>通信等待时限</div>
-            <div>{{ robotData.interruptTime }}</div>
           </div>
         </div>
         <div class="control">
@@ -247,7 +243,7 @@ export default {
           console.log(res)
         })
         // 订阅机器人实时消息
-        this.stompClient.subscribe('/robotData/65535', (res) => {
+        this.stompClient.subscribe('/robotData/1', (res) => {
           const data = JSON.parse(JSON.parse(JSON.stringify(res)).body).data
           this.robotData = data
           this.runContext(data.towerNumber, data.distance)
@@ -302,6 +298,11 @@ export default {
       walkDirection({
         serialNumber: this.serialNumber,
         direction: '1'
+      }).then(res => {
+        console.log(res)
+        // 弹出提示框
+        if (res.code !== 200) return this.$message.error('操作失败')
+        else this.$message.success('当前运动模式为前进')
       })
     },
     // 后退
@@ -309,6 +310,11 @@ export default {
       walkDirection({
         serialNumber: this.serialNumber,
         direction: '2'
+      }).then(res => {
+        console.log(res)
+        // 弹出提示框
+        if (res.code !== 200) return this.$message.error('操作失败')
+        else this.$message.success('当前运动模式为后退')
       })
     },
     // 停止
@@ -316,21 +322,35 @@ export default {
       walkDirection({
         serialNumber: this.serialNumber,
         direction: '0'
+      }).then(res => {
+        console.log(res)
+        // 弹出提示框
+        if (res.code !== 200) return this.$message.error('操作失败')
+        else this.$message.success('运动已停止')
       })
     },
     // 加档
     spee(data) {
-      spee({
-        serialNumber: this.serialNumber,
-        speed: (this.robotData.speed + 1)
-      })
+      if (this.robotData.speed === 10) {
+        alert('当前速度已达到最大')
+      } else {
+        spee({
+          serialNumber: this.serialNumber,
+          speed: (this.robotData.speed + 1)
+        })
+      }
     },
 
+    // 减档
     spe(data) {
-      spe({
-        serialNumber: this.serialNumber,
-        speed: (this.robotData.speed - 1)
-      })
+      if (this.robotData.speed === 0) {
+        alert('当前速度已达到最小')
+      } else {
+        spee({
+          serialNumber: this.serialNumber,
+          speed: (this.robotData.speed - 1)
+        })
+      }
     },
 
     // 点动行走模式
@@ -344,6 +364,11 @@ export default {
       walkPattern({
         serialNumber: this.serialNumber,
         pattern: data
+      }).then(res => {
+        console.log(res)
+        // 弹出提示框
+        if (res.code !== 200) return this.$message.error('操作失败')
+        else this.$message.success('行走模式修改成功')
       })
     },
 
@@ -382,24 +407,44 @@ export default {
       workPattern({
         pattern: this.value,
         serialNumber: this.serialNumber
+      }).then(res => {
+        console.log(res)
+        // 弹出提示框
+        if (res.code !== 200) return this.$message.error('操作失败')
+        else this.$message.success('当前工作模式已切换成功')
       })
     },
     // 抓图
     captureImage: function(item) {
       captureImage({
         serialNumber: this.serialNumber
+      }).then(res => {
+        console.log(res)
+        // 弹出提示框
+        if (res.code !== 200) return this.$message.error('操作失败')
+        else this.$message.success('抓图操作成功')
       })
     },
     // 测温
     detectTemperature: function(item) {
       detectTemperature({
         serialNumber: this.serialNumber
+      }).then(res => {
+        console.log(res)
+        // 弹出提示框
+        if (res.code !== 200) return this.$message.error('操作失败')
+        else this.$message.success('测温操作成功')
       })
     },
     // 装载
     loadCable() {
       loadCable({
         serialNumber: this.serialNumber
+      }).then(res => {
+        console.log(res)
+        // 弹出提示框
+        if (res.code !== 200) return this.$message.error('操作失败')
+        else this.$message.success('开始装载')
       })
     },
     // 升滑台
@@ -422,9 +467,16 @@ export default {
         slidePosition({
           serialNumber: this.serialNumber,
           position: (this.robotData.slidePosition - 5)
+        }).then(res => {
+          console.log(res)
+          console.log(status)
+          //  弹出提示框
+          if (res.status !== 200) return this.$message.error('操作失败')
+          else this.$message.success('操作成功')
         })
       }
     },
+
     // 修补
     repairGroundWire() {
       repairGroundWire({
@@ -432,7 +484,7 @@ export default {
       }).then(res => {
         console.log(res)
         // 弹出提示框
-        if (res.meta.status !== 200) return this.$message.error('操作失败')
+        if (res.code !== 200) return this.$message.error('操作失败')
         else this.$message.success('操作成功')
       })
     },

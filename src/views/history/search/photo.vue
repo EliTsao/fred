@@ -21,13 +21,18 @@
         >搜索</el-button>
       </div>
       <el-table :data="tableData" border stripe>
+        <!-- <el-table-column label="所属线路">
+          <template slot-scope="scope">
+            <img :src="scope.row.imageUrl">
+          </template>
+        </el-table-column> -->
         <el-table-column prop="lineName" label="所属线路" />
         <el-table-column prop="robotName" label="机器人名称" />
         <el-table-column prop="createTime" label="创建时间" />
         <el-table-column prop="userName" label="操作人员" />
         <el-table-column show-overflow-tooltip label="操作" width="200">
           <template #default="{ row }">
-            <el-button type="text" @click="handleEdit(row)">编辑</el-button>
+            <el-button type="text" @click="open">查看</el-button>
             <el-button type="text" @click="handleDelete(row)">删除</el-button>
           </template>
         </el-table-column>
@@ -57,6 +62,7 @@ export default {
       totalPage: 1,
       tableData: [],
       allList: [],
+      imageList: [],
       schArr: [],
       sch_order: '',
       sch_status: null,
@@ -95,6 +101,17 @@ export default {
       this.pageSize = val
       this.getPageData()
     },
+    open() {
+      this.$alert('这是一段内容', '标题名称', {
+        confirmButtonText: '确定',
+        callback: action => {
+          this.$message({
+            type: 'info',
+            message: `action: ${action}`
+          })
+        }
+      })
+    },
     handlePage(val) {
       this.currentPage = val
       this.getPageData()
@@ -106,6 +123,8 @@ export default {
           this.schArr = this.allList
           this.getPageData()
           this.total = res.data.total
+          // this.imageList =
+          // console.log(photo)
         })
         .catch(error => {
           this.$message.error(error.message)
