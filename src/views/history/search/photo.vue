@@ -5,8 +5,8 @@
         <span>图片查询</span>
       </div>
       <div class="searchDiv">
-        <el-input v-model="name" placeholder="请输入机器人名称" style="width:200px" />
-        <el-input v-model="user" placeholder="请输入操作人信息" style="width:200px" />
+        <el-input v-model="name" placeholder="请输入机器人名称" style="width: 200px" />
+        <el-input v-model="user" placeholder="请输入操作人信息" style="width: 200px" />
         <el-date-picker
           v-model="value1"
           type="daterange"
@@ -14,25 +14,21 @@
           start-placeholder="开始日期"
           end-placeholder="结束日期"
         />
-        <el-button
-          type="primary"
-          icon="el-icon-search"
-          @click="searchTab()"
-        >搜索</el-button>
+        <el-button type="primary" icon="el-icon-search" @click="searchTab()">搜索</el-button>
       </div>
       <el-table :data="tableData" border stripe>
         <!-- <el-table-column label="所属线路">
           <template slot-scope="scope">
             <img :src="scope.row.imageUrl">
           </template>
-        </el-table-column> -->
+        </el-table-column>-->
         <el-table-column prop="lineName" label="所属线路" />
         <el-table-column prop="robotName" label="机器人名称" />
         <el-table-column prop="createTime" label="创建时间" />
         <el-table-column prop="userName" label="操作人员" />
         <el-table-column show-overflow-tooltip label="操作" width="200">
           <template #default="{ row }">
-            <el-button type="text" @click="open">查看</el-button>
+            <el-button type="text" @click="open(row)">查看</el-button>
             <el-button type="text" @click="handleDelete(row)">删除</el-button>
           </template>
         </el-table-column>
@@ -54,10 +50,14 @@
 
 <script>
 import { imageData } from '@/api/history'
+import { mapGetters } from 'vuex'
 
 export default {
   data() {
     return {
+      value1: '',
+      user: '',
+      name: '',
       total: 0,
       totalPage: 1,
       tableData: [],
@@ -93,7 +93,11 @@ export default {
       }
     }
   },
+  computed: {
+    ...mapGetters(['token'])
+  },
   created() {
+    console.log(this.token)
     this.imageData()
   },
   methods: {
@@ -101,16 +105,33 @@ export default {
       this.pageSize = val
       this.getPageData()
     },
-    open() {
-      this.$alert('这是一段内容', '标题名称', {
-        confirmButtonText: '确定',
-        callback: action => {
-          this.$message({
-            type: 'info',
-            message: `action: ${action}`
-          })
+    open(row) {
+      var xmlhttp
+      var _this = this
+      xmlhttp = new XMLHttpRequest()
+      xmlhttp.open('GET', 'http://' + row.imageUrl, true)
+      // xmlhttp.open("GET", "/static/img/tieta.d47af448.jpg", true);
+
+      xmlhttp.responseType = 'blob'
+      xmlhttp.setRequestHeader('Authorization', this.token) // 该处加上你当前的token
+      xmlhttp.onload = function() {
+        if (this.status === 200) {
+          var blob = this.response
+          var img = document.createElement('img')
+          img.onload = function(e) {
+            window.URL.revokeObjectURL(img.src)
+          }
+          img.src = window.URL.createObjectURL(blob)
+          _this.$alert(
+            '<img src=' + window.URL.createObjectURL(blob) + " width='100%'>",
+            '图片',
+            {
+              dangerouslyUseHTMLString: true
+            }
+          )
         }
-      })
+      }
+      xmlhttp.send()
     },
     handlePage(val) {
       this.currentPage = val
@@ -135,9 +156,7 @@ export default {
       const end = start + this.pageSize
       this.tableData = this.schArr.slice(start, end)
     },
-    excelDow() {
-
-    }
+    excelDow() {}
   }
 }
 </script>
@@ -170,7 +189,7 @@ export default {
 <style lang="scss">
 .anoCard {
   .el-card__body:after {
-    content: '';
+    content: "";
     clear: both;
     width: 0;
     height: 0;
@@ -181,7 +200,7 @@ export default {
 .diaForm .el-form-item__label {
   padding-right: 20px;
 }
-.searchDiv [class^='el-icon'] {
+.searchDiv [class^="el-icon"] {
   color: #fff;
 }
 </style>

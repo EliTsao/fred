@@ -5,8 +5,16 @@
         <span>实时数据查询</span>
       </div>
       <div class="searchDiv">
-        <el-input v-model="name" placeholder="请输入机器人名称" style="width:200px" />
-        <el-input v-model="line" placeholder="请输入线路名称" style="width:200px" />
+        <el-input
+          v-model="name"
+          placeholder="请输入机器人名称"
+          style="width: 200px"
+        />
+        <el-input
+          v-model="line"
+          placeholder="请输入线路名称"
+          style="width: 200px"
+        />
         <el-date-picker
           v-model="value1"
           type="daterange"
@@ -100,22 +108,23 @@ export default {
   },
   methods: {
     excelDow() {
-      excelDow().then(res => {
-        if (res.status === 200) {
-          const blob = res.data
-          const fileReader = new FileReader() // FileReader 对象允许Web应用程序异步读取存储在用户计算机上的文件的内容
-          fileReader.readAsDataURL(blob) // 开始读取指定的Blob中的内容。一旦完成，result属性中将包含一个data: URL格式的Base64字符串以表示所读取文件的内容
-          fileReader.onload = (event) => { // 处理load事件。该事件在读取操作完成时触发
-            // 新建个下载的a标签，完成后移除。
-            const a = document.createElement('a')
-            const _fileName = '实时数据.xls'
-            a.download = _fileName
-            a.href = event.target.result
-            document.body.appendChild(a)
-            a.click()
-            document.body.removeChild(a)
-          }
+      excelDow().then((res) => {
+        // if (res.status === 200) {
+        const blob = res
+        const fileReader = new FileReader() // FileReader 对象允许Web应用程序异步读取存储在用户计算机上的文件的内容
+        fileReader.readAsDataURL(blob) // 开始读取指定的Blob中的内容。一旦完成，result属性中将包含一个data: URL格式的Base64字符串以表示所读取文件的内容
+        fileReader.onload = (event) => {
+          // 处理load事件。该事件在读取操作完成时触发
+          // 新建个下载的a标签，完成后移除。
+          const a = document.createElement('a')
+          const _fileName = '实时数据.xls'
+          a.download = _fileName
+          a.href = event.target.result
+          document.body.appendChild(a)
+          a.click()
+          document.body.removeChild(a)
         }
+        // }
       })
     },
     handleSize(val) {
@@ -132,13 +141,13 @@ export default {
         startTime: this.value1,
         lineName: this.line
       })
-        .then(res => {
+        .then((res) => {
           this.allList = res.data.items
           this.schArr = this.allList
           this.getPageData()
           this.total = res.data.total
         })
-        .catch(error => {
+        .catch((error) => {
           this.$message.error(error.message)
         })
     },
@@ -180,7 +189,7 @@ export default {
 <style lang="scss">
 .anoCard {
   .el-card__body:after {
-    content: '';
+    content: "";
     clear: both;
     width: 0;
     height: 0;
@@ -191,7 +200,7 @@ export default {
 .diaForm .el-form-item__label {
   padding-right: 20px;
 }
-.searchDiv [class^='el-icon'] {
+.searchDiv [class^="el-icon"] {
   color: #fff;
 }
 </style>

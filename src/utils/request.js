@@ -45,14 +45,12 @@ service.interceptors.response.use(
    * You can also judge the status by HTTP Status Code
    */
   response => {
-    console.log('222222222' + response.data.code)
     const token = response.headers.authorization
     if (token) {
       localStorage.setItem('token', token)
       console.log(response.headers.authorization)
       store.commit('user/SET_TOKEN', token)
       setToken(token)
-      console.log('222222222' + response.code)
     }
     if (response.data.code === 401) { // token被加黑名单
       console.log(response.code)

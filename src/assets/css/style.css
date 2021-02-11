@@ -9,7 +9,7 @@ body {
     display         : flex;
     flex-direction  : column;
     color           : #FF9800;
-    background-color: #004D40;
+    /* background-color: #004D40; */
 }
 
 /* 网格布局 */

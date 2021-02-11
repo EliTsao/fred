@@ -2,7 +2,9 @@
   <div :class="className" :style="{height:height,width:width}">
     <el-card class="anoCard">
       <div slot="header">
-        <span>实时数据查询</span>
+        <h4>实时数据查询</h4>
+        <!-- <el-date-picker /> -->
+        <div ref="chart" style="height: 600px" />
       </div>
     </el-card>
   </div>
@@ -24,11 +26,11 @@ export default {
     },
     width: {
       type: String,
-      default: '600px'
+      default: '100%'
     },
     height: {
       type: String,
-      default: '800px'
+      default: 'calc(100vh - 50px)'
     },
     autoResize: {
       type: Boolean,
@@ -111,7 +113,7 @@ export default {
       })
     },
     initChart() {
-      this.chart = echarts.init(this.$el, 'macarons')
+      this.chart = echarts.init(this.$refs['chart'])
       this.chart.setOption({
         title: {
           // text: '机器人趋势图线',
@@ -155,9 +157,9 @@ export default {
         },
         legend: {
           textStyle: {
-            fontSize: 30
+            fontSize: 18
           },
-          data: ['机器人电量', '湿度', '温度']
+          data: ['机器人电量', '湿度', '环境温度']
         },
         series: [{
           name: '机器人电量', itemStyle: {
@@ -181,7 +183,7 @@ export default {
           type: 'line',
           itemStyle: {
             normal: {
-              color: '#3888fa',
+              color: '#45E4A5',
               lineStyle: {
                 color: '#45E4A5',
                 width: 2
@@ -193,14 +195,14 @@ export default {
           animationEasing: 'quadraticOut'
         },
         {
-          name: '温度',
+          name: '环境温度',
           smooth: true,
           type: 'line',
           itemStyle: {
             normal: {
-              color: '#blue',
+              color: '#3888fa',
               lineStyle: {
-                color: 'red',
+                color: '#3888fa',
                 width: 2
               }
             }

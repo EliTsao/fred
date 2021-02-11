@@ -10,7 +10,7 @@ export function captureImage(params) {
 
 export function detectTemperature(params) {
   return request({
-    url: 'command/detectTemperature/',
+    url: 'command/detectTemperatureV2/',
     method: 'get',
     params
   })
