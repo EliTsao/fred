@@ -81,9 +81,9 @@
         <div class="control">
           <div class="base">
             <div class="btn-pr">
-              <img src="../../assets/svg/add-circle-fill.svg" @click="control('zoomin')">
+              <img src="../../assets/svg/add-circle-fill.svg" @click="control('zoomout')">
               <div>变倍</div>
-              <img src="../../assets/svg/indeterminate-circle-fill.svg" @click="control('zoomout')">
+              <img src="../../assets/svg/indeterminate-circle-fill.svg" @click="control('zoomin')">
             </div>
             <div class="btn-pr">
               <img src="../../assets/svg/add-circle-fill.svg" @click="control('focusin')">
@@ -93,10 +93,10 @@
             <span />
             <div class="d-pad">
               <img src="../../assets/svg/checkbox-blank-circle-line.svg" @click="control('stop')">
-              <img src="../../assets/svg/arrow-up-s-line.svg" @click="control('up')">
-              <img src="../../assets/svg/arrow-down-s-line.svg" @click="control('down')">
-              <img src="../../assets/svg/arrow-left-s-line.svg" @click="control('left')">
-              <img src="../../assets/svg/arrow-right-s-line.svg" @click="control('right')">
+              <img src="../../assets/svg/arrow-up-s-line.svg" @click="control('down')">
+              <img src="../../assets/svg/arrow-down-s-line.svg" @click="control('up')">
+              <img src="../../assets/svg/arrow-left-s-line.svg" @click="control('right')">
+              <img src="../../assets/svg/arrow-right-s-line.svg" @click="control('left')">
             </div>
           </div>
           <div class="tools">
@@ -112,9 +112,11 @@
               <el-button @click="workPattern">确定</el-button>
             </div>
             <div class="grid-9">
-              <el-button @mousedown.native="mouse" @mouseup="mouseup"><img src="../../assets/svg/arrow-left-fill.svg"></el-button>
+              <el-button @click="walkback"><img src="../../assets/svg/arrow-left-fill.svg"></el-button>
+              <!-- <el-button @mousedown.native="mouse" @mouseup="mouseup"><img src="../../assets/svg/arrow-left-fill.svg"></el-button> -->
               <el-button @click="walkstop"><img src="../../assets/svg/stop-fill.svg"></el-button>
-              <el-button @mousedown.native="mousedown" @mouseup.native="mouseup"><img src="../../assets/svg/arrow-right-fill.svg"></el-button>
+              <el-button @click="walkon"><img src="../../assets/svg/arrow-right-fill.svg"></el-button>
+              <!-- <el-button @mousedown.native="mousedown" @mouseup.native="mouseup"><img src="../../assets/svg/arrow-right-fill.svg"></el-button> -->
               <button @click="spee">加档</button>
               <button id="level">{{ robotData.speed }}</button>
               <button @click="spe">减档</button>
@@ -141,7 +143,6 @@
 </template>
 
 <script>
-var mousedown = { timer: null, start: null, end: null, play: null }
 import { captureImage, detectTemperature, loadCable, repairGroundWire, spee, spe, slidePosition, walkPattern, workPattern, walkDirection, clickPattern } from '@/api/mainpage'
 import axios from 'axios'
 import SockJS from 'sockjs-client'
@@ -195,6 +196,7 @@ export default {
   mounted() {
     this.channelNum = 2
     this.init
+    this.speed = 1
     this.webSocketConnect()
     this.serialNumber = 1
     this.ctx = document.getElementById('canvas').getContext('2d')
@@ -215,8 +217,6 @@ export default {
   methods: {
 
     selectRobot: function(item) {
-      // const name = params.target.dataset.name
-      // this.Robot_Selected = name
       console.log(item)
       const params = {
         serialNumber: item.serialNumber
@@ -257,42 +257,6 @@ export default {
       })
     },
 
-    // 长按
-    mousedown() {
-      if (this.robotData.walkPattern !== '点动') {
-        this.walkon()
-      } else {
-        mousedown.start = new Date().getTime()
-        mousedown.timer = setInterval(function() {
-          mousedown.end = new Date().getTime()
-          this.walkon()
-          if (mousedown.end - mousedown.start > 1000) {
-            clearInterval(mousedown.timer)
-            this.walkon()
-          }
-        }, 800)
-      }
-    },
-    mouseup() {
-      if (this.robotData.walkPattern === '点动') {
-        clearInterval(mousedown.timer)
-        this.walkstop()
-      }
-    },
-    mouse() {
-      if (this.robotData.walkPattern !== '点动') {
-        this.walkback()
-      } else {
-        this.walkback()
-        mousedown.start = new Date().getTime()
-        mousedown.timer = setInterval(function() {
-          mousedown.end = new Date().getTime()
-          if (mousedown.end - mousedown.start > 1000) {
-            this.walkback()
-          }
-        }, 1000)
-      }
-    },
     // 前进
     walkon() {
       walkDirection({
@@ -337,6 +301,11 @@ export default {
         spee({
           serialNumber: this.serialNumber,
           speed: (this.robotData.speed + 1)
+        }).then(res => {
+          console.log(res)
+          // 弹出提示框
+          if (res.code !== 200) return this.$message.error('操作失败')
+          else this.$message.success('操作成功')
         })
       }
     },
@@ -349,6 +318,11 @@ export default {
         spee({
           serialNumber: this.serialNumber,
           speed: (this.robotData.speed - 1)
+        }).then(res => {
+          console.log(res)
+          // 弹出提示框
+          if (res.code !== 200) return this.$message.error('操作失败')
+          else this.$message.success('操作成功')
         })
       }
     },
@@ -455,6 +429,12 @@ export default {
         slidePosition({
           serialNumber: this.serialNumber,
           position: (this.robotData.slidePosition + 5)
+        }).then(res => {
+          console.log(res)
+          console.log(status)
+          //  弹出提示框
+          if (res.code !== 200) return this.$message.error('操作失败')
+          else this.$message.success('操作成功')
         })
       }
     },
@@ -471,7 +451,7 @@ export default {
           console.log(res)
           console.log(status)
           //  弹出提示框
-          if (res.status !== 200) return this.$message.error('操作失败')
+          if (res.code !== 200) return this.$message.error('操作失败')
           else this.$message.success('操作成功')
         })
       }
@@ -488,13 +468,26 @@ export default {
         else this.$message.success('操作成功')
       })
     },
+
+    // 停止
+    stop(data) {
+      axios.get('http://39.104.53.187:10810/nvc/server/api/v1/ptzcontrol', { // 调取云台接口地址
+        params: {
+          channel: this.channelNum, // 调取对应的设备通道地址
+          command: 'stop' // 调取云台接口的控制参数
+        }
+      })
+    },
+
     control(data) { // testControl里的data是接收云台控制组件的里按钮传递的参数。
       axios.get('http://39.104.53.187:10810/nvc/server/api/v1/ptzcontrol', { // 调取云台接口地址
         params: {
           channel: this.channelNum, // 调取对应的设备通道地址
-          command: data // 调取云台接口的控制参数
+          command: data, // 调取云台接口的控制参数
+          speed: this.speed
         }
       })
+      this.timer = setTimeout(this.stop, 500)
         .then((response) => {
           console.log(response)
         })

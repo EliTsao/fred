@@ -128,8 +128,7 @@ export default {
       this.currentPage = val
       this.getPageData()
     },
-    robotadd(){
-
+    robotadd() {
     },
     interrupCycle(row) {
       const serialNumber = row.serialNumber
@@ -158,9 +157,6 @@ export default {
         .catch(error => {
           this.$message.error(error.message)
         })
-    },
-    robotadd() {
-
     },
     getPageData() {
       const start = (this.currentPage - 1) * this.pageSize

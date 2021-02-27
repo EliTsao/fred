@@ -75,11 +75,9 @@ export default {
       this.loading = true
       listLine(this.queryParams).then(response => {
         this.MapList = response.data
-        console.log('折线图数据：' + this.MapList)
         const MapList = this.MapList
         if (MapList) {
           const obj = eval(MapList) // eval() 函数可计算某个字符串，并执行其中的的 JavaScript 代码。返回值是通过计算 string 而得到的值
-          console.log(obj.length)
           for (let i = 0; i < obj.length; i++) {
             this.environmentTemperature.push(MapList[i].environmentTemperature)
           }

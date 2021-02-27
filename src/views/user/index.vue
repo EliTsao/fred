@@ -110,11 +110,11 @@ export default {
             userId: userId
           }).then(res => {
             console.log(res)
-            if (res.code !== 200) { return this.$message.error('删除用户失败') }
+            if (res.code !== 200) return this.$message.error('删除用户失败')
             // 修改成功的提示
             else this.$message.success('删除用户成功')
-            this.getList() // 重新获取用户数据
-            console.log(res.code)
+
+            this.fetchData() // 重新获取用户数据
           })
         })
         .catch(() => {
@@ -184,3 +184,4 @@ export default {
 }
 </style>
 <style lang="scss">
+

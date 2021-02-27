@@ -34,15 +34,12 @@
         >导出Excel文件</el-button>
       </div>
       <el-table :data="tableData" border stripe>
-        <el-table-column prop="id" label="线路编号" />
         <el-table-column prop="lineName" label="线路名称" />
-        <el-table-column prop="robotSerialNumber" label="机器人编号" />
         <el-table-column prop="robotName" label="机器人名称" />
         <el-table-column prop="towerNumber" label="塔号" />
         <el-table-column prop="robotPosition" label="距离" />
         <el-table-column prop="environmentTemperature" label="环境温度" />
         <el-table-column prop="humidity" label="湿度值" />
-        <el-table-column prop="power" label="机器人电量" />
         <el-table-column prop="createTime" label="创建时间" />
       </el-table>
       <el-pagination
