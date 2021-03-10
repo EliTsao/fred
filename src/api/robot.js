@@ -18,10 +18,7 @@ export function robotdelete(params) {
   return request({
     url: '/robot/delete/',
     method: 'delete',
-    params: {
-      id: '',
-      userName: ''
-    }
+    params
   })
 }
 
@@ -29,27 +26,38 @@ export function findrobot(params) {
   return request({
     url: '/robot/find/',
     method: 'get',
-    params: {
-      id: ''
-    }
+    params
   })
 }
 
 export function findAll(params) {
   return request({
     url: 'robot/findAll',
-    method: 'get'
+    method: 'get',
+    params
   })
 }
 
 export function robotupdate(data) {
   return request({
     url: 'robot/update',
-    method: 'put',
-    data: {
-      robot: '',
-      userName: ''
-    }
+    method: 'put'
+  })
+}
+
+export function setAPP(params) {
+  return request({
+    url: 'command/setAPP',
+    method: 'get',
+    params
+  })
+}
+
+export function setBootloader(params) {
+  return request({
+    url: 'command/setBootloader',
+    method: 'get',
+    params
   })
 }
 

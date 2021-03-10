@@ -2,7 +2,7 @@
   <div class="className">
     <el-card class="anoCard">
       <div slot="header">
-        <span>实时数据查询</span>
+        <span>测温数据查询</span>
       </div>
       <div class="searchDiv">
         <el-input v-model="name" placeholder="请输入机器人名称" style="width:200px" />

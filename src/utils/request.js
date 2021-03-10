@@ -8,7 +8,7 @@ import router from '@/router/index'
 const service = axios.create({
   baseURL: 'http://www.aait-suse.cn/dlxj', // url = base url + request url
   // withCredentials: true, // send cookies when cross-domain requests
-  timeout: 10000 // request timeout
+  timeout: 200000 // request timeout
 })
 
 // request interceptor
@@ -48,14 +48,12 @@ service.interceptors.response.use(
     const token = response.headers.authorization
     if (token) {
       localStorage.setItem('token', token)
-      console.log(response.headers.authorization)
       store.commit('user/SET_TOKEN', token)
       setToken(token)
     }
     if (response.data.code === 401) { // token被加黑名单
-      console.log(response.code)
       // 重新登录
-      MessageBox.alert('数据异常，请重新登录！', '警告', {
+      MessageBox.alert('身份已过期，请重新登录', '警告', {
         confirmButtonText: '确定',
         type: 'warning',
         center: true,

@@ -89,7 +89,11 @@ export default {
   },
   methods: {
     async getRoutes() {
+      console.log('lll')
       const res = await getRoutes()
+      console.log(res.data)
+      const obj = eval(res.data)
+      console.log(obj.length)
       this.routesData = res.data.name
       this.routes = this.generateRoutes(res.data)
     },

@@ -19,7 +19,7 @@
           />
         </el-select>
         <el-date-picker
-          v-model="sch_date"
+          v-model="data"
           class="width1"
           type="date"
           placeholder="选择日期时间"
@@ -35,16 +35,21 @@
           icon="el-icon-circle-plus-outline"
           @click="addTab"
         >开始录像</el-button>
-        <el-button
-          type="primary"
-          icon="el-icon-circle-plus-outline"
-          @click="stop"
-        >停止录像</el-button>
       </div>
       <el-table :data="tableData" border stripe>
-        <el-table-column prop="startAt" label="录像时间" />
-        <el-table-column prop="duration" label="录像总时长" />
-        <el-table-column prop="phone" label="联系电话" />
+        <el-table-column prop="name" label="通道名称" />
+        <el-table-column prop="startAt" label="录制时间" />
+
+        <el-table-column label="播放">
+          <i class="el-icon-video-play" @click="replay" />
+          <i class="el-icon-video-play" @click="replay(row)" />
+        </el-table-column>
+
+        <el-table-column label="删除录像">
+          <template #default="{ row }">
+            <i class="el-icon-delete" @click="deleteReplay(row)" />
+          </template>
+        </el-table-column>
       </el-table>
       <el-pagination
         background
@@ -54,10 +59,23 @@
         :current-page="currentPage"
         :total="total"
         class="fyDiv"
-        @size-change="handleSize"
         @current-change="handlePage"
       />
     </el-card>
+    <el-dialog
+      title="录像回放"
+      :visible.sync="dialogVisible"
+      width="30%"
+      :before-close="handleClose"
+      @opened="play"
+    >
+      <div class="palye-box">
+        <div id="wasmPlayer" />
+      </div>
+      <span slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="dialogVisible = false">确 定</el-button>
+      </span>
+    </el-dialog>
     <el-dialog title="录像设定" :visible.sync="diaIsShow" class="diaForm">
       <el-form
         ref="diaForm"
@@ -103,41 +121,19 @@
 
 <script>
 import axios from 'axios'
+import moment from 'moment'
 export default {
-  filters: {
-    statusText(val) {
-      if (val === undefined) return
-      if (val === 0) {
-        return '已完成'
-      } else if (val === 1) {
-        return '待审核'
-      } else if (val === 2) {
-        return '配送中'
-      } else {
-        return '已取消'
-      }
-    },
-    tagClass(val) {
-      if (val === undefined) return
-      if (val === 0) {
-        return 'success'
-      } else if (val === 1) {
-        return 'info'
-      } else if (val === 2) {
-        return 'warning'
-      } else {
-        return 'danger'
-      }
-    }
-  },
   data() {
     return {
       player: '',
+      id: null,
       url: [],
+      data: null,
       tableData: [],
       allList: [],
       schArr: [],
       sch_order: '',
+      dialogVisible: false,
       sch_status: null,
       sch_date: null,
       currentPage: 1,
@@ -147,10 +143,11 @@ export default {
       diaIsShow: false,
       formData: {},
       editType: '',
+      videoUrl: null,
       options: [
         { label: '主摄像头', value: 1 },
         { label: '热成像图', value: 2 },
-        { label: '前轮摄像头', value: 0 },
+        { label: '前轮摄像头', value: 4 },
         { label: '后轮摄像头', value: 3 }
       ],
       rowIndex: 0,
@@ -163,23 +160,93 @@ export default {
             message: '请输入时间',
             trigger: 'change'
           }
-        ],
-        address: [{ required: true, message: '请输入地址', trigger: 'blur' }],
-        phone: [{ required: true, message: '请输入联系方式', trigger: 'blur' }],
-        name: [{ required: true, message: '请输入姓名', trigger: 'blur' }],
-        status: [
-          { required: true, message: '请选择录像通道', trigger: 'change' }
         ]
       }
     }
   },
   created() {
-    this._getPageTab2()
+    // this.getAllreplay()
+    this.searchTab()
   },
+  mounted() {
+    this.player = new WasmPlayer(this.videoUrl, 'wasmPlayer', this.callbackfun, {
+      Height: true
+    })
+  },
+
   methods: {
-    handleSize(val) {
-      this.pageSize = val
-      this.getPageData()
+    deleteReplay(row) {
+      const idName = row.name
+      switch (idName) {
+        case 'Channel1':
+          this.id = 1
+          break
+        case 'Channel2':
+          this.id = 2
+          break
+        case 'Channel3':
+          this.id = 3
+          break
+        case 'Channel4':
+          this.id = 4
+          break
+      }
+      console.log(this.id)
+      const period = row.startAt
+      console.log(period)
+      axios.get('http://39.104.53.187:10810/nvc/server/api/v1/record/remove', {
+        params: {
+          id: this.id,
+          period: period
+        }
+      })
+    },
+    play() {
+      this.player.play(this.videoUrl)
+    },
+    //   回调函数
+    callbackfun(e) {
+      console.log('callbackfun', e)
+    },
+    // // 获取所有通道录像
+    // getAllreplay() {
+    //   axios.get('http://39.104.53.187:10810/nvc/server2/api/v1/record/querydevices', {
+    //     params: {
+    //       start: 0,
+    //       limit: 10,
+    //       q: '',
+    //       order: 'ascending'
+    //     }
+    //   }).then(response => {
+    //     const res = response.data.rows
+    //     this.tableData = res
+    //     this.days = moment(res.updateAt).format('YYYYMMDD')
+    //     console.log('hh' + this.days)
+    //   })
+    // },
+    addTab() {
+      this.formData = {}
+      this.diaIsShow = true
+      this.formData.order = (Math.random() * 10e18).toString()
+      this.formData.id = this.allList.length + 1
+      this.editType = 'add'
+      this.$nextTick(() => {
+        this.$refs.diaForm.clearValidate()
+      })
+    },
+    // 录像回放
+    replay(row) {
+      this.url = row.hls
+      this.dialogVisible = true
+      this.videoUrl = 'http://39.104.53.187:10810/nvc/server' + row.hls
+      this.play()
+    },
+    handleClose(done) {
+      this.$confirm('确认关闭？')
+        .then(_ => {
+          done()
+        })
+        .catch(_ => {})
     },
     handlePage(val) {
       this.currentPage = val
@@ -191,7 +258,6 @@ export default {
       this.tableData = this.schArr.slice(start, end)
     },
     // 开始录像
-    // 开始录像
     start(data) {
       axios.get('http://39.104.53.187:10810/nvc/server/api/v1/startrecord', {
         params: {
@@ -201,42 +267,32 @@ export default {
         }
       }).then(response => {
         // 请求成功
-        const res = response.data
+        const res = response.data.EasyDarwin.Header
         console.log(res)
       }).catch(error => {
         // 请求失败，
         console.log(error)
       })
     },
-    // add
-    addTab() {
-      this.formData = {}
-      this.diaIsShow = true
-      this.formData.order = (Math.random() * 10e18).toString()
-      this.formData.id = this.allList.length + 1
-      this.editType = 'add'
-      this.$nextTick(() => {
-        this.$refs.diaForm.clearValidate()
-      })
-    },
-    // 停止录像
-    stop() {
-
-    },
-    // 查找
+    // 获取录像
     searchTab() {
       axios.get('http://39.104.53.187:10810/nvc/server/api/v1/record/querydaily', {
         params: {
           id: this.sch_status,
-          period: this.sch_date
+          period: this.data
         }
       }).then(res => {
+        console.log(res)
+        console.log(res.data.list.[0].hls)
         this.allList = res.data.list
         this.schArr = this.allList
         this.getPageData()
         this.total = res.data.total
+        console.log(this.allList)
+        this.$message.error(res)
       })
         .catch(error => {
+          console.log('hh' + error.message)
           this.$message.error(error.message)
         })
     }
@@ -280,6 +336,13 @@ export default {
     display: block;
   }
 }
+.player-box {
+    height: 400px;
+    width: 600px;
+    margin: auto;
+    margin-top: 2%;
+    border: 1px solid #eee;
+  }
 .diaForm .el-form-item__label {
   padding-right: 20px;
 }

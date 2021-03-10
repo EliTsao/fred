@@ -14,8 +14,8 @@
       </div>
       <div class="line">
         <div class="info">
-          <div>位置:{{ robotData.distance }}</div>
-          <div>速度: {{ robotData.speed }}</div>
+          <div>位置:{{ robotData.distance }}M</div>
+          <div>速度: {{ robotData.speed }}挡</div>
           <div>温度: {{ robotData.temperature }}</div>
           <div>湿度: {{ robotData.humidity }}</div>
           <div class="block" />
@@ -47,7 +47,7 @@
           <div class="title">{{ Robot_Selected }}状态</div>
           <div class="item">
             <div>名称:</div>
-            <div>{{ robotData.name }}</div>
+            <div>{{ robotName }}</div>
           </div>
           <div class="item">
             <div>行走方向:</div>
@@ -58,23 +58,28 @@
             <div>{{ robotData.robotPower }}</div>
           </div>
           <div class="item">
-            <div>当前状态:</div>
+            <div>工作状态:</div>
             <div>{{ robotData.workState }}</div>
           </div>
           <div class="item">
             <div>网络状态：</div>
-            <!-- <div>{{ robotData. }}</div> -->
+            <div>{{ networkState }}</div>
           </div>
           <div class="item">
             <div>设备消息:</div>
-            <div>{{ robotData.cameraPowerStatus }}</div>
+            <div v-if="robotData.loadstatus !== '待命'">
+              {{ robotData.loadstatus }}
+            </div>
+            <div v-else>
+              {{ robotData.repairStatus }}
+            </div>
           </div>
           <div class="item">
-            <div>滑台位置</div>
+            <div>滑台位置:</div>
             <div>{{ robotData.slidePosition }}</div>
           </div>
           <div class="item">
-            <div>运动模式</div>
+            <div>运动模式<nbsp />:</div>
             <div>{{ robotData.walkPattern }}</div>
           </div>
         </div>
@@ -100,23 +105,10 @@
             </div>
           </div>
           <div class="tools">
-            <div class="select">
-              <el-select v-model="value" placeholder="请选择工作状态" style="width:150px">
-                <el-option
-                  v-for="item in options"
-                  :key="item.value"
-                  :label="item.label"
-                  :value="item.value"
-                />
-              </el-select>
-              <el-button @click="workPattern">确定</el-button>
-            </div>
             <div class="grid-9">
               <el-button @click="walkback"><img src="../../assets/svg/arrow-left-fill.svg"></el-button>
-              <!-- <el-button @mousedown.native="mouse" @mouseup="mouseup"><img src="../../assets/svg/arrow-left-fill.svg"></el-button> -->
               <el-button @click="walkstop"><img src="../../assets/svg/stop-fill.svg"></el-button>
               <el-button @click="walkon"><img src="../../assets/svg/arrow-right-fill.svg"></el-button>
-              <!-- <el-button @mousedown.native="mousedown" @mouseup.native="mouseup"><img src="../../assets/svg/arrow-right-fill.svg"></el-button> -->
               <button @click="spee">加档</button>
               <button id="level">{{ robotData.speed }}</button>
               <button @click="spe">减档</button>
@@ -143,88 +135,89 @@
 </template>
 
 <script>
-import { captureImage, detectTemperature, loadCable, repairGroundWire, spee, spe, slidePosition, walkPattern, workPattern, walkDirection, clickPattern } from '@/api/mainpage'
+import { captureImage, detectTemperature, loadCable, repairGroundWire, spee, slidePosition, walkPattern, workPattern, walkDirection, clickPattern } from '@/api/mainpage'
+import { findrobot } from '@/api/robot'
 import axios from 'axios'
 import SockJS from 'sockjs-client'
 import Stomp from 'stompjs'
 export default {
   data() {
     return {
-      options: [{
-        value: '0',
-        label: '待命'
-      }, {
-        value: '1',
-        label: '充电'
-      }, {
-        value: '2',
-        label: '寻找充电桩'
-      }],
+      server: null,
       value: '',
-      videoUrl1: 'http://39.104.53.187:10810/nvc/server/flv/hls/stream_2.flv',
-      videoUrl2: 'http://39.104.53.187:10810/nvc/server/flv/hls/stream_1.flv',
-      videoUrl3: 'http://39.104.53.187:10810/nvc/server/flv/hls/stream_3.flv',
-      videoUrl4: 'http://39.104.53.187:10810/nvc/server/flv/hls/stream_4.flv',
-      serialNumber: '',
+      videoUrl1: null,
+      videoUrl2: null,
+      videoUrl3: null,
+      videoUrl4: null,
+      id: null,
+      robotName: null,
+      networkState: null,
+      serialNumber: null,
       channels: '',
-      player: '',
-      timer: '',
+      channelNum: null,
       Robot: [
         {
           name: '机器人1',
-          serialNumber: 1
+          serialNumber: 1,
+          channelNum: 2,
+          server: 'server',
+          id: 3
         },
         {
           name: '机器人2',
-          serialNumber: 2
-        },
-        {
-          name: '机器人3',
-          serialNumber: 3
-        },
-        {
-          name: '机器人4',
-          serialNumber: 4
+          serialNumber: 2,
+          channelNum: 2,
+          server: 'server2',
+          id: 4
         }
       ],
       Robot_Selected: '机器人',
       ctx: null,
       robotData: {},
-      news: {}
+      news: {},
+      error: {}
     }
   },
   mounted() {
-    this.channelNum = 2
     this.init
     this.speed = 1
-    this.webSocketConnect()
-    this.serialNumber = 1
+    // this.webSocketConnect()
     this.ctx = document.getElementById('canvas').getContext('2d')
-    var player1 = new WasmPlayer(this.videoUrl1, 'wasmPlayer1', this.callbackfun, {
+    this.player2 = new WasmPlayer(this.videoUrl2, 'wasmPlayer2', this.callbackfun, {
       Height: true
     })
-    var player2 = new WasmPlayer(this.videoUrl2, 'wasmPlayer2', this.callbackfun, {
+    this.player1 = new WasmPlayer(this.videoUrl1, 'wasmPlayer1', this.callbackfun, {
       Height: true
     })
-    var player3 = new WasmPlayer(this.videoUrl3, 'wasmPlayer3', this.callbackfun, {
+    this.player3 = new WasmPlayer(this.videoUrl3, 'wasmPlayer3', this.callbackfun, {
       Height: true
     })
-    var player4 = new WasmPlayer(this.videoUrl4, 'wasmPlayer4', this.callbackfun, {
+    this.player4 = new WasmPlayer(this.videoUrl4, 'wasmPlayer4', this.callbackfun, {
       Height: true
     })
   },
 
   methods: {
-
     selectRobot: function(item) {
-      console.log(item)
-      const params = {
-        serialNumber: item.serialNumber
-      }
-      console.log(params)
-      axios.get(params).then(res => {
-        console.log(res)
-      })
+      this.serialNumber = item.serialNumber
+      this.id = item.id
+      console.log('hh' + item.id)
+      console.log(this.id)
+      this.channelNum = item.channelNum
+      this.server = item.server
+      this.videoUrl1 = 'http://39.104.53.187:10810/nvc/' + this.server + '/flv/hls/stream_2.flv'
+      this.videoUrl2 = 'http://39.104.53.187:10810/nvc/' + this.server + '/flv/hls/stream_1.flv'
+      this.videoUrl3 = 'http://39.104.53.187:10810/nvc/' + this.server + '/flv/hls/stream_3.flv'
+      this.videoUrl4 = 'http://39.104.53.187:10810/nvc/' + this.server + '/flv/hls/stream_4.flv'
+      this.play()
+      this.findrobot()
+      this.webSocketConnect()
+    },
+    play() {
+      this.player1.play(this.videoUrl1)
+      this.player2.play(this.videoUrl2)
+      this.player3.play(this.videoUrl3)
+      this.player4.play(this.videoUrl4)
     },
     //   回调函数
     callbackfun(e) {
@@ -243,7 +236,7 @@ export default {
           console.log(res)
         })
         // 订阅机器人实时消息
-        this.stompClient.subscribe('/robotData/1', (res) => {
+        this.stompClient.subscribe('/robotData/' + this.serialNumber, (res) => {
           const data = JSON.parse(JSON.parse(JSON.stringify(res)).body).data
           this.robotData = data
           this.runContext(data.towerNumber, data.distance)
@@ -256,7 +249,15 @@ export default {
         })
       })
     },
-
+    findrobot() {
+      findrobot({
+        id: this.id
+      }).then(res => {
+        console.log(res)
+        this.robotName = res.data.robotName
+        this.networkState = res.data.networkState
+      })
+    },
     // 前进
     walkon() {
       walkDirection({
@@ -265,7 +266,7 @@ export default {
       }).then(res => {
         console.log(res)
         // 弹出提示框
-        if (res.code !== 200) return this.$message.error('操作失败')
+        if (res.code !== 200) return this.$message.error(res.msg)
         else this.$message.success('当前运动模式为前进')
       })
     },
@@ -277,7 +278,7 @@ export default {
       }).then(res => {
         console.log(res)
         // 弹出提示框
-        if (res.code !== 200) return this.$message.error('操作失败')
+        if (res.code !== 200) return this.$message.error(res.msg)
         else this.$message.success('当前运动模式为后退')
       })
     },
@@ -289,7 +290,7 @@ export default {
       }).then(res => {
         console.log(res)
         // 弹出提示框
-        if (res.code !== 200) return this.$message.error('操作失败')
+        if (res.code !== 200) return this.$message.error(res.msg)
         else this.$message.success('运动已停止')
       })
     },
@@ -304,7 +305,7 @@ export default {
         }).then(res => {
           console.log(res)
           // 弹出提示框
-          if (res.code !== 200) return this.$message.error('操作失败')
+          if (res.code !== 200) return this.$message.error(res.msg)
           else this.$message.success('操作成功')
         })
       }
@@ -321,7 +322,7 @@ export default {
         }).then(res => {
           console.log(res)
           // 弹出提示框
-          if (res.code !== 200) return this.$message.error('操作失败')
+          if (res.code !== 200) return this.$message.error(res.msg)
           else this.$message.success('操作成功')
         })
       }
@@ -329,8 +330,14 @@ export default {
 
     // 点动行走模式
     walkPattern0(data) {
+      console.log(this.serialNumber)
       clickPattern({
         serialNumber: this.serialNumber
+      }).then(res => {
+        console.log(res)
+        // 弹出提示框
+        if (res.code !== 200) return this.$message.error(res.msg)
+        else this.$message.success('当前行走模式已修改为点动')
       })
     },
     // 连续行走模式
@@ -341,8 +348,8 @@ export default {
       }).then(res => {
         console.log(res)
         // 弹出提示框
-        if (res.code !== 200) return this.$message.error('操作失败')
-        else this.$message.success('行走模式修改成功')
+        if (res.code !== 200) return this.$message.error(res.msg)
+        else this.$message.success('当前行走模式已修改为连续')
       })
     },
 
@@ -384,7 +391,7 @@ export default {
       }).then(res => {
         console.log(res)
         // 弹出提示框
-        if (res.code !== 200) return this.$message.error('操作失败')
+        if (res.code !== 200) return this.$message.error(res.msg)
         else this.$message.success('当前工作模式已切换成功')
       })
     },
@@ -395,7 +402,7 @@ export default {
       }).then(res => {
         console.log(res)
         // 弹出提示框
-        if (res.code !== 200) return this.$message.error('操作失败')
+        if (res.code !== 200) return this.$message.error(res.msg)
         else this.$message.success('抓图操作成功')
       })
     },
@@ -406,7 +413,7 @@ export default {
       }).then(res => {
         console.log(res)
         // 弹出提示框
-        if (res.code !== 200) return this.$message.error('操作失败')
+        if (res.code !== 200) return this.$message.error(res.msg)
         else this.$message.success('测温操作成功')
       })
     },
@@ -417,7 +424,7 @@ export default {
       }).then(res => {
         console.log(res)
         // 弹出提示框
-        if (res.code !== 200) return this.$message.error('操作失败')
+        if (res.code !== 200) return this.$message.error(res.msg)
         else this.$message.success('开始装载')
       })
     },
@@ -433,7 +440,7 @@ export default {
           console.log(res)
           console.log(status)
           //  弹出提示框
-          if (res.code !== 200) return this.$message.error('操作失败')
+          if (res.code !== 200) return this.$message.error(res.msg)
           else this.$message.success('操作成功')
         })
       }
@@ -451,7 +458,7 @@ export default {
           console.log(res)
           console.log(status)
           //  弹出提示框
-          if (res.code !== 200) return this.$message.error('操作失败')
+          if (res.code !== 200) return this.$message.error(res.msg)
           else this.$message.success('操作成功')
         })
       }
@@ -464,14 +471,14 @@ export default {
       }).then(res => {
         console.log(res)
         // 弹出提示框
-        if (res.code !== 200) return this.$message.error('操作失败')
+        if (res.code !== 200) return this.$message.error(res.msg)
         else this.$message.success('操作成功')
       })
     },
 
     // 停止
     stop(data) {
-      axios.get('http://39.104.53.187:10810/nvc/server/api/v1/ptzcontrol', { // 调取云台接口地址
+      axios.get('http://39.104.53.187:10810/nvc/' + this.server + '/api/v1/ptzcontrol', { // 调取云台接口地址
         params: {
           channel: this.channelNum, // 调取对应的设备通道地址
           command: 'stop' // 调取云台接口的控制参数
@@ -480,7 +487,7 @@ export default {
     },
 
     control(data) { // testControl里的data是接收云台控制组件的里按钮传递的参数。
-      axios.get('http://39.104.53.187:10810/nvc/server/api/v1/ptzcontrol', { // 调取云台接口地址
+      axios.get('http://39.104.53.187:10810/nvc/' + this.server + '/api/v1/ptzcontrol', { // 调取云台接口地址
         params: {
           channel: this.channelNum, // 调取对应的设备通道地址
           command: data, // 调取云台接口的控制参数

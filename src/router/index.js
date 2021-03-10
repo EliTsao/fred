@@ -45,12 +45,6 @@ export const constantRoutes = [
     hidden: true
   },
   {
-    path: '/mainpage2',
-    name: 'hh',
-    component: () => import('@/views/mainpage/2'),
-    hidden: true
-  },
-  {
     path: '/',
     component: Layout,
     children: [{
@@ -64,7 +58,7 @@ export const constantRoutes = [
     path: '/form',
     component: Layout,
     name: 'User',
-    meta: { title: '用户权限管理' },
+    meta: { title: '用户权限管理', icon: 'user' },
     children: [
       {
         path: 'index',
@@ -117,7 +111,7 @@ export const constantRoutes = [
         path: 'index',
         name: 'data',
         component: () => import('@/views/data/index'),
-        meta: { title: '趋势曲线' }
+        meta: { title: '趋势曲线', icon: 'el-icon-s-data' }
       }
     ]
   },
@@ -126,7 +120,7 @@ export const constantRoutes = [
     path: '/history',
     component: Layout,
     name: 'history',
-    meta: { title: '历史数据' },
+    meta: { title: '历史数据', icon: 'el-icon-date' },
     children: [
       {
         path: 'search',
@@ -144,7 +138,7 @@ export const constantRoutes = [
         path: 'photo',
         component: () => import('@/views/history/search/photo'),
         name: 'photo',
-        meta: { title: '图片存储' }
+        meta: { title: '图片存储', icon: 'el-icon-picture' }
       }
     ]
 
@@ -171,7 +165,7 @@ export const constantRoutes = [
         path: 'index',
         name: 'replay',
         component: () => import('@/views/replay/index'),
-        meta: { title: '录像回放' }
+        meta: { title: '录像回放', icon: 'el-icon-video-play' }
       }
     ]
   },

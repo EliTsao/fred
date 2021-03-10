@@ -2,7 +2,16 @@
   <div :class="className" :style="{height:height,width:width}">
     <el-card class="anoCard">
       <div slot="header">
-        <h4>实时数据查询</h4>
+        <span>实时数据查询</span>
+        <div class="block">
+          <el-date-picker
+            v-model="value1"
+            type="datetimerange"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
+            :default-time="['12:00:00']"
+          />
+        </div>
         <!-- <el-date-picker /> -->
         <div ref="chart" style="height: 600px" />
       </div>
@@ -39,6 +48,7 @@ export default {
   },
   data() {
     return {
+      value1: '',
       chart: null,
       MapList: [],
       rows: [],
@@ -73,7 +83,8 @@ export default {
   methods: {
     getLineList() {
       this.loading = true
-      listLine(this.queryParams).then(response => {
+      listLine(
+        this.queryParams).then(response => {
         this.MapList = response.data
         const MapList = this.MapList
         if (MapList) {
