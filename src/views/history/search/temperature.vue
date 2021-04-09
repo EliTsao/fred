@@ -5,10 +5,18 @@
         <span>测温数据查询</span>
       </div>
       <div class="searchDiv">
-        <el-input v-model="name" placeholder="请输入机器人名称" style="width:200px" />
+        <el-select v-model="value" placeholder="请选择机器人">
+          <el-option
+            v-for="item in options"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value"
+          />
+        </el-select>
         <el-input v-model="user" placeholder="请输入操作人信息" style="width:200px" />
         <el-date-picker
           v-model="value1"
+          value-format="yyyy-MM-dd HH:mm:ss"
           type="daterange"
           range-separator="至"
           start-placeholder="开始日期"
@@ -54,34 +62,6 @@
 <script>
 import { temperatureData, tmData } from '@/api/history'
 export default {
-  filters: {
-    statusText(val) {
-      if (val === undefined) return
-      if (val === 0) {
-        return '环境温度'
-      } else if (val === 1) {
-        return '环境湿度'
-      } else if (val === 2) {
-        return '测试点数据'
-      } else if (val === 3) {
-        return '机器人电量'
-      } else {
-        return '抓图图片'
-      }
-    },
-    tagClass(val) {
-      if (val === undefined) return
-      if (val === 0) {
-        return 'success'
-      } else if (val === 1) {
-        return 'info'
-      } else if (val === 2) {
-        return 'warning'
-      } else {
-        return 'danger'
-      }
-    }
-  },
   data() {
     return {
       total: '12',
@@ -91,6 +71,10 @@ export default {
       name: '',
       user: '',
       value1: '',
+      pickdate: {
+        startTime: '',
+        endTime: ''
+      },
       tableData: [],
       allList: [],
       schArr: [],
@@ -104,12 +88,10 @@ export default {
       formData: {},
       editType: '',
       options: [
-        { label: '环境温度', value: 0 },
-        { label: '环境湿度', value: 1 },
-        { label: '测试点数据', value: 2 },
-        { label: '机器人电量', value: 3 },
-        { label: '抓图图片', value: 4 }
+        { label: '一号机器人', value: '一号机器人' },
+        { label: '二号机器人', value: '二号机器人' }
       ],
+      value: '一号机器人',
       rowIndex: 0,
       rules: {
         time: [
@@ -157,8 +139,13 @@ export default {
       this.getPageData()
     },
     temperatureData() {
+      this.pickdate.startTime = this.value1[0]
+      this.pickdate.endTime = this.value1[1]
+      console.log(this.pickdate.startTime)
       temperatureData({
-        robotName: this.name,
+        startTime: this.pickdate.startTime,
+        endTime: this.pickdate.endTime,
+        robotName: this.value,
         userName: this.user
       })
         .then(res => {

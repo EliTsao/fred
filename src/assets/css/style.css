@@ -20,6 +20,7 @@ body {
     grid-template-columns: 120px auto 280px;
     grid-template-rows   : 220px auto;
     overflow             : hidden;
+    min-height: calc(100vh - 50px);
 }
 
 .container>.list {
@@ -146,9 +147,8 @@ body {
     padding: 5px 0;
 }
 
-.camera canvas {
+.camera player-box {
     flex            : 1;
-    background-color: gray;
 }
 
 /* 状态信息 */

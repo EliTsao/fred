@@ -79,6 +79,7 @@
           :limit="1"
           :on-preview="handlePreview"
           :on-remove="handleRemove"
+          :on-success="handleSuccess"
           :file-list="fileList"
           :auto-upload="false"
         >
@@ -96,24 +97,24 @@
             <el-input v-model="form.cycle" autocomplete="off" />
           </el-form-item>
         </el-form>
-
-        <el-dialog title="设置通信时间" :visible.sync="dialogFormVisible" :before-close="handleClose">
-          <el-form :model="uploadCycleform">
-            <el-form-item label="设置时长" :label-width="formLabelWidth">
-              <el-input v-model="form.cycle" autocomplete="off" />
-            </el-form-item>
-          </el-form>
-          <div slot="footer" class="dialog-footer">
-            <el-button @click="dialogFormVisible = false">取 消</el-button>
-            <el-button type="primary" @click="uploadCycle">确 定</el-button>
-          </div>
-        </el-dialog>
-
         <div slot="footer" class="dialog-footer">
           <el-button @click="dialog = false">取 消</el-button>
           <el-button type="primary" @click="interrupCycle">确 定</el-button>
         </div>
       </el-dialog>
+
+      <el-dialog title="设置通信时间" :visible.sync="dialogFormVisible" :before-close="handleClose">
+        <el-form :model="uploadCycleform">
+          <el-form-item label="设置时长" :label-width="formLabelWidth">
+            <el-input v-model="form.cycle" autocomplete="off" />
+          </el-form-item>
+        </el-form>
+        <div slot="footer" class="dialog-footer">
+          <el-button @click="dialogFormVisible = false">取 消</el-button>
+          <el-button type="primary" @click="uploadCycle">确 定</el-button>
+        </div>
+      </el-dialog>
+
       <el-pagination
         background
         layout="total, sizes, prev, pager, next"
@@ -199,7 +200,7 @@ export default {
     myData() {
       return {
         'version': this.input,
-        'serialNumber': this.serialNumber
+        'serialNumber': this.dialogSerialNumber
       }
     }
   },
@@ -207,11 +208,6 @@ export default {
     this.findAll()
   },
   methods: {
-    open1() {
-      // const serialNumber = row.serialNumber
-      // console.log(serialNumber)
-      console.log('hh')
-    },
     handleClose(done) {
       this.$confirm('确认关闭？')
         .then(_ => {
@@ -318,6 +314,7 @@ export default {
       this.tableData = this.schArr.slice(start, end)
     },
     submitUpload() {
+      this.file = false
       this.$refs.upload.submit()
     },
     handleRemove(file, fileList) {
@@ -325,6 +322,14 @@ export default {
     },
     handlePreview(file) {
       console.log(file)
+    },
+    handleSuccess(res, file, fileList) {
+      console.log(res, file, fileList)
+      if (res.code === 200) {
+        this.$message.success(res.msg)
+      } else {
+        this.$message.error(res.msg)
+      }
     },
     getApp() {
     // getAppVersion()

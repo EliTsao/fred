@@ -116,7 +116,31 @@
             <div class="grid-4">
               <button @click="walkPattern1('1')">连续</button>
               <button @click="walkPattern0('0')">点动</button>
-              <button @click="captureImage">抓图</button>
+              <el-button @click="dialogVisible = true">抓图</el-button>
+
+              <el-dialog
+                title="选择抓取图片频道"
+                :visible.sync="dialogVisible"
+                width="30%"
+                :before-close="handleClose"
+              >
+                <el-form :model="form">
+                  <el-form-item label="选择频道" :label-width="formLabelWidth">
+                    <el-select v-model="value" placeholder="请选择">
+                      <el-option
+                        v-for="item in options"
+                        :key="item.value"
+                        :label="item.label"
+                        :value="item.value"
+                      />
+                    </el-select>
+                  </el-form-item>
+                </el-form>
+                <span slot="footer" class="dialog-footer">
+                  <el-button @click="dialogVisible = false">取 消</el-button>
+                  <el-button @click="captureImage">确 定</el-button>
+                </span>
+              </el-dialog>
               <button @click="detectTemperature">测温</button>
               <button @click="loadCable">装载</button>
               <button @click="slidPosition">升滑台</button>
@@ -144,7 +168,6 @@ export default {
   data() {
     return {
       server: null,
-      value: '',
       videoUrl1: null,
       videoUrl2: null,
       videoUrl3: null,
@@ -171,11 +194,31 @@ export default {
           id: 4
         }
       ],
+      options: [{
+        value: '1',
+        label: '主摄像头'
+      }, {
+        value: '2',
+        label: '热成像图'
+      }],
+      value: '',
       Robot_Selected: '机器人',
       ctx: null,
+      dialogVisible: false,
       robotData: {},
       news: {},
-      error: {}
+      error: {},
+      form: {
+        name: '',
+        region: '',
+        date1: '',
+        date2: '',
+        delivery: false,
+        type: [],
+        resource: '',
+        desc: ''
+      },
+      formLabelWidth: '120px'
     }
   },
   mounted() {
@@ -198,11 +241,16 @@ export default {
   },
 
   methods: {
+    handleClose(done) {
+      this.$confirm('确认关闭？')
+        .then(_ => {
+          done()
+        })
+        .catch(_ => {})
+    },
     selectRobot: function(item) {
       this.serialNumber = item.serialNumber
       this.id = item.id
-      console.log('hh' + item.id)
-      console.log(this.id)
       this.channelNum = item.channelNum
       this.server = item.server
       this.videoUrl1 = 'http://39.104.53.187:10810/nvc/' + this.server + '/flv/hls/stream_2.flv'
@@ -223,9 +271,14 @@ export default {
     callbackfun(e) {
       console.log('callbackfun', e)
     },
+
     webSocketConnect() {
       // 连接上端口
       const socket = new SockJS('http://www.aait-suse.cn/dlxj/endpoint_is')
+      if (this.stompClient) {
+        this.stompClient.disconnect()
+      }
+
       this.stompClient = Stomp.over(socket)
       this.stompClient.connect({}, (frame) => {
         console.log(frame)
@@ -243,20 +296,24 @@ export default {
         })
         // 订阅系统消息
         this.stompClient.subscribe('/systemMessage', (res) => {
-          // console.log(res)
           const data = JSON.parse(JSON.parse(JSON.stringify(res)).body).data
           this.news = data
         })
       })
     },
     findrobot() {
-      findrobot({
-        id: this.id
-      }).then(res => {
-        console.log(res)
-        this.robotName = res.data.robotName
-        this.networkState = res.data.networkState
-      })
+      setInterval(() => {
+        findrobot({
+          id: this.id
+        }).then(res => {
+          if (res.data.networkState === '离线') {
+            this.robotData = null
+          }
+          console.log(res)
+          this.robotName = res.data.robotName
+          this.networkState = res.data.networkState
+        })
+      }, 1000)
     },
     // 前进
     walkon() {
@@ -304,6 +361,7 @@ export default {
           speed: (this.robotData.speed + 1)
         }).then(res => {
           console.log(res)
+          if (res.code === 400) this.$message.error('操作失败')
           // 弹出提示框
           if (res.code !== 200) return this.$message.error(res.msg)
           else this.$message.success('操作成功')
@@ -384,29 +442,30 @@ export default {
       this.ctx.stroke()
     },
     // 修改工作模式
-    workPattern: function name(params) {
-      workPattern({
-        pattern: this.value,
-        serialNumber: this.serialNumber
-      }).then(res => {
-        console.log(res)
-        // 弹出提示框
-        if (res.code !== 200) return this.$message.error(res.msg)
-        else this.$message.success('当前工作模式已切换成功')
-      })
-    },
+    // workPattern: function name(params) {
+    //   workPattern({
+    //     pattern: this.value,
+    //     serialNumber: this.serialNumber
+    //   }).then(res => {
+    //     console.log(res)
+    //     // 弹出提示框
+    //     if (res.code !== 200) return this.$message.error(res.msg)
+    //     else this.$message.success('当前工作模式已切换成功')
+    //   })
+    // },
     // 抓图
     captureImage: function(item) {
       captureImage({
-        serialNumber: this.serialNumber
+        serialNumber: this.serialNumber,
+        cameraNumber: this.value
       }).then(res => {
+        console.log('hh' + this.value)
         console.log(res)
         // 弹出提示框
         if (res.code !== 200) return this.$message.error(res.msg)
         else this.$message.success('抓图操作成功')
       })
     },
-    // 测温
     detectTemperature: function(item) {
       detectTemperature({
         serialNumber: this.serialNumber
@@ -507,5 +566,4 @@ export default {
 </script>
 
 <style scoped src='../../assets/css/style.css'>
-
 </style>

@@ -1,8 +1,9 @@
 import request from '@/utils/request'
 
-export function listLine() {
+export function listLine(params) {
   return request({
     url: '/lineChart',
-    method: 'get'
+    method: 'get',
+    params
   })
 }

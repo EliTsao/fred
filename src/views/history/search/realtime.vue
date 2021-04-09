@@ -5,16 +5,14 @@
         <span>实时数据查询</span>
       </div>
       <div class="searchDiv">
-        <el-input
-          v-model="name"
-          placeholder="请输入机器人名称"
-          style="width: 200px"
-        />
-        <el-input
-          v-model="line"
-          placeholder="请输入线路名称"
-          style="width: 200px"
-        />
+        <el-select v-model="value" placeholder="请选择机器人">
+          <el-option
+            v-for="item in options"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value"
+          />
+        </el-select>
         <el-date-picker
           v-model="value1"
           type="daterange"
@@ -64,8 +62,6 @@ export default {
   data() {
     return {
       total: 0,
-      name: '',
-      line: '',
       totalPage: 1,
       tableData: [],
       allList: [],
@@ -81,12 +77,14 @@ export default {
       formData: {},
       editType: '',
       options: [
-        { label: '环境温度', value: 0 },
-        { label: '环境湿度', value: 1 },
-        { label: '测试点数据', value: 2 },
-        { label: '机器人电量', value: 3 },
-        { label: '抓图图片', value: 4 }
+        { label: '一号机器人', value: '一号机器人' },
+        { label: '二号机器人', value: '二号机器人' }
       ],
+      value: '一号机器人',
+      pickdate: {
+        startTime: '',
+        endTime: ''
+      },
       rowIndex: 0,
       rules: {
         time: [
@@ -133,10 +131,12 @@ export default {
       this.getPageData()
     },
     robotData() {
+      this.pickdate.startTime = this.value1[0]
+      this.pickdate.endTime = this.value1[1]
       robotData({
-        robotName: this.name,
-        startTime: this.value1,
-        lineName: this.line
+        startTime: this.pickdate.startTime,
+        endTime: this.pickdate.endTime,
+        robotName: this.value
       })
         .then((res) => {
           this.allList = res.data.items
@@ -197,7 +197,16 @@ export default {
 .diaForm .el-form-item__label {
   padding-right: 20px;
 }
-.searchDiv [class^="el-icon"] {
-  color: #fff;
+.searchDiv {
+  margin-bottom: 20px;
+  .el-button {
+    padding: 11px 20px;
+  }
+  .el-select {
+    padding:20px;
+  }
+  .el-date-picker{
+    padding: 14px 20px;
+  }
 }
 </style>

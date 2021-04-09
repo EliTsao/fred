@@ -20,9 +20,7 @@ export function imageData(params) {
   return request({
     url: 'image/history/imageData',
     method: 'get',
-    params: {
-
-    }
+    params
   })
 }
 

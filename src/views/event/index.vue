@@ -6,10 +6,10 @@
       </div>
       <div class="searchDiv">
         <el-select
-          v-model="sch_status"
+          v-model="schtype"
           clearable
           class="width1"
-          placeholde="请选择查询项目"
+          placeholder="请选择查询项目"
         >
           <el-option
             v-for="item in options"
@@ -19,16 +19,21 @@
           />
         </el-select>
         <el-date-picker
-          v-model="sch_date"
-          class="width1"
-          type="date"
-          placeholder="选择日期时间"
-          value-format="yyyy-MM-dd"
+          v-model="value2"
+          value-format="yyyy-MM-dd HH:mm:ss"
+          type="datetimerange"
+          :picker-options="pickerOptions"
+          range-separator="至"
+          start-placeholder="开始日期"
+          end-placeholder="结束日期"
+          align="right"
         />
+        <el-input v-model="input" placeholder="请输入操作人员" />
         <el-button
+          style="margin-left: 30px"
           type="primary"
           icon="el-icon-search"
-          @click="searchTab()"
+          @click="event"
         >搜索</el-button>
       </div>
       <el-table :data="tableData" border stripe>
@@ -59,26 +64,40 @@
 <script>
 import { event } from '@/api/event'
 export default {
-  filters: {
-    statusText(val) {
-      if (val === undefined) return
-      if (val === 0) {
-        return '系统事件'
-      } else if (val === 1) {
-        return '用户操作'
-      } else if (val === 2) {
-        return '系统参数'
-      } else if (val === 3) {
-        return '用户管理'
-      } else if (val === 4) {
-        return '设备管理'
-      } else {
-        return '机器人参数'
-      }
-    }
-  },
   data() {
     return {
+      pickerOptions: {
+        shortcuts: [{
+          text: '最近一周',
+          onClick(picker) {
+            const end = new Date()
+            const start = new Date()
+            start.setTime(start.getTime() - 3600 * 1000 * 24 * 7)
+            picker.$emit('pick', [start, end])
+          }
+        }, {
+          text: '最近一个月',
+          onClick(picker) {
+            const end = new Date()
+            const start = new Date()
+            start.setTime(start.getTime() - 3600 * 1000 * 24 * 30)
+            picker.$emit('pick', [start, end])
+          }
+        }, {
+          text: '最近三个月',
+          onClick(picker) {
+            const end = new Date()
+            const start = new Date()
+            start.setTime(start.getTime() - 3600 * 1000 * 24 * 90)
+            picker.$emit('pick', [start, end])
+          }
+        }]
+      },
+      value2: '',
+      pickdate: {
+        startTime: '',
+        endTime: ''
+      },
       action: [],
       endTime: [],
       startTime: [],
@@ -89,8 +108,10 @@ export default {
       schArr: [],
       sch_order: '',
       sch_status: null,
+      schtype: null,
       sch_date: null,
       currentPage: 1,
+      input: null,
       pageSize: 10,
       total: 0,
       pageSizes: [10, 20, 30, 40],
@@ -98,12 +119,9 @@ export default {
       formData: {},
       editType: '',
       options: [
-        { label: '系统事件', value: 0 },
-        { label: '用户操作', value: 1 },
-        { label: '系统参数', value: 2 },
-        { label: '用户管理', value: 3 },
-        { label: '设备管理', value: 4 },
-        { label: '机器人参数', value: 5 }
+        { label: '系统事件', value: '系统事件' },
+        { label: '用户操作', value: '用户操作' },
+        { label: '机器人参数修改', value: '机器人参数修改' }
       ],
       rowIndex: 0
     }
@@ -121,7 +139,14 @@ export default {
       this.getPageData()
     },
     event() {
-      event()
+      this.pickdate.startTime = this.value2[0]
+      this.pickdate.endTime = this.value2[1]
+      event({
+        startTime: this.pickdate.startTime,
+        endTime: this.pickdate.endTime,
+        type: this.schtype,
+        userName: this.input
+      })
         .then(res => {
           this.allList = res.data.items
           this.schArr = this.allList
@@ -154,7 +179,22 @@ export default {
 .searchDiv {
   margin-bottom: 20px;
   .el-button {
-    padding: 11px 20px;
+    padding-left: 11px;
+    padding-right: 20px;
+  }
+  .el-select{
+    width: 15%;
+  }
+  .el-date-picker{
+    width: 20%;
+    padding-left: 5%;
+  }
+  .el-input {
+    padding-left: 1%;
+    width: 20%;
+  }
+  .el-button{
+    padding-left: 1%;
   }
 }
 .width1 {

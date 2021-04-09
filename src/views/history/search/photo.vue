@@ -51,6 +51,7 @@
 <script>
 import { imageData } from '@/api/history'
 import { mapGetters } from 'vuex'
+import axios from 'axios'
 
 export default {
   data() {
@@ -156,7 +157,9 @@ export default {
       const end = start + this.pageSize
       this.tableData = this.schArr.slice(start, end)
     },
-    excelDow() {}
+    getimage() {
+      axios.get('')
+    }
   }
 }
 </script>

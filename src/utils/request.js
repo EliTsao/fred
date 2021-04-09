@@ -6,7 +6,8 @@ import router from '@/router/index'
 
 // create an axios instance
 const service = axios.create({
-  baseURL: 'http://www.aait-suse.cn/dlxj', // url = base url + request url
+  baseURL: 'http://www.aait-suse.cn/dlxj/', // url = base url + request url
+  // baseURL: 'localhost:10010',
   // withCredentials: true, // send cookies when cross-domain requests
   timeout: 200000 // request timeout
 })

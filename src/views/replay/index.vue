@@ -5,11 +5,14 @@
         <span>录像回放</span>
       </div>
       <div class="searchDiv">
+        <el-select v-model="level" placeholder="请选择机器人" @change="selectChange()">
+          <el-option v-for="item in select" :key="item.value" :label="item.label" :value="item.value" />
+        </el-select>
         <el-select
           v-model="sch_status"
           clearable
           class="width1"
-          placeholde="请选择录像"
+          placeholder="请选择录像"
         >
           <el-option
             v-for="item in options"
@@ -41,8 +44,15 @@
         <el-table-column prop="startAt" label="录制时间" />
 
         <el-table-column label="播放">
-          <i class="el-icon-video-play" @click="replay" />
-          <i class="el-icon-video-play" @click="replay(row)" />
+          <template #default="{row}">
+            <i class="el-icon-video-play" @click="replay(row)" />
+          </template>
+        </el-table-column>
+
+        <el-table-column label="录像下载">
+          <template #default="{row}">
+            <i class="el-icon-download" @click="download(row)" />
+          </template>
         </el-table-column>
 
         <el-table-column label="删除录像">
@@ -62,20 +72,19 @@
         @current-change="handlePage"
       />
     </el-card>
+
     <el-dialog
       title="录像回放"
       :visible.sync="dialogVisible"
       width="30%"
       :before-close="handleClose"
-      @opened="play"
     >
-      <div class="palye-box">
-        <div id="wasmPlayer" />
-      </div>
+      <div id="player" />
       <span slot="footer" class="dialog-footer">
         <el-button type="primary" @click="dialogVisible = false">确 定</el-button>
       </span>
     </el-dialog>
+
     <el-dialog title="录像设定" :visible.sync="diaIsShow" class="diaForm">
       <el-form
         ref="diaForm"
@@ -116,34 +125,41 @@
         </el-form-item>
       </el-form>
     </el-dialog>
+    <div id="Player" />
   </div>
 </template>
 
 <script>
 import axios from 'axios'
 import moment from 'moment'
+
 export default {
   data() {
     return {
       player: '',
       id: null,
       url: [],
-      data: null,
+      data: moment().format('YYYYMMDD'),
       tableData: [],
       allList: [],
       schArr: [],
       sch_order: '',
       dialogVisible: false,
-      sch_status: null,
+      sch_status: 1,
       sch_date: null,
       currentPage: 1,
       pageSize: 10,
       total: 0,
+      level: 'server',
       pageSizes: [10, 20, 30, 40],
       diaIsShow: false,
       formData: {},
       editType: '',
       videoUrl: null,
+      select: [
+        { label: '一号机器人', value: 'server' },
+        { label: '二号机器人', value: 'server2' }
+      ],
       options: [
         { label: '主摄像头', value: 1 },
         { label: '热成像图', value: 2 },
@@ -152,10 +168,8 @@ export default {
       ],
       rowIndex: 0,
       rules: {
-        // order: [{ required: true, message: '请输入订单号', trigger: 'blur' }],
         time: [
           {
-            // type: 'datetime',
             required: true,
             message: '请输入时间',
             trigger: 'change'
@@ -165,16 +179,11 @@ export default {
     }
   },
   created() {
-    // this.getAllreplay()
     this.searchTab()
-  },
-  mounted() {
-    this.player = new WasmPlayer(this.videoUrl, 'wasmPlayer', this.callbackfun, {
-      Height: true
-    })
   },
 
   methods: {
+    // 删除录像
     deleteReplay(row) {
       const idName = row.name
       switch (idName) {
@@ -191,39 +200,43 @@ export default {
           this.id = 4
           break
       }
-      console.log(this.id)
       const period = row.startAt
-      console.log(period)
-      axios.get('http://39.104.53.187:10810/nvc/server/api/v1/record/remove', {
-        params: {
-          id: this.id,
-          period: period
-        }
+      this.$confirm('此操作将永久删除该录像，是否继续？', '警告', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'danger'
       })
+        .then(async() => {
+          // 确定
+          axios.get('http://39.104.53.187:10810/nvc/server/api/v1/record/remove', {
+            params: {
+              id: this.id,
+              period: period
+            }
+          }).then(res => {
+            if (res.status !== 200) return this.$message.error('删除录像失败')
+            // 修改成功的提示
+            else this.$message.success('删除录像成功')
+
+            this.searchTab() // 重新获取用户数据
+          })
+        })
+        .catch(() => {
+          return this.$message.info('已经取消删除')
+          // 取消
+        })
     },
+    // 播放
     play() {
-      this.player.play(this.videoUrl)
+      console.log(this.videoUrl)
+      this.player.play(this.videoUrl, 1)
     },
+
     //   回调函数
     callbackfun(e) {
       console.log('callbackfun', e)
     },
-    // // 获取所有通道录像
-    // getAllreplay() {
-    //   axios.get('http://39.104.53.187:10810/nvc/server2/api/v1/record/querydevices', {
-    //     params: {
-    //       start: 0,
-    //       limit: 10,
-    //       q: '',
-    //       order: 'ascending'
-    //     }
-    //   }).then(response => {
-    //     const res = response.data.rows
-    //     this.tableData = res
-    //     this.days = moment(res.updateAt).format('YYYYMMDD')
-    //     console.log('hh' + this.days)
-    //   })
-    // },
+
     addTab() {
       this.formData = {}
       this.diaIsShow = true
@@ -234,13 +247,22 @@ export default {
         this.$refs.diaForm.clearValidate()
       })
     },
+    // 下载录像
+    download(row) {
+      const data1 = row.startAt
+      axios.get('http://39.104.53.187:10810/nvc/' + this.level + '/api/v1/record/download/' + this.sch_status + '/' + data1)
+    },
     // 录像回放
     replay(row) {
       this.url = row.hls
       this.dialogVisible = true
-      this.videoUrl = 'http://39.104.53.187:10810/nvc/server' + row.hls
-      this.play()
+      this.videoUrl = 'http://39.104.53.187:10810' + this.url
+      this.$nextTick(() => {
+        this.player = new WasmPlayer(null, 'player', this.callbackfun)
+        this.play()
+      })
     },
+
     handleClose(done) {
       this.$confirm('确认关闭？')
         .then(_ => {
@@ -259,16 +281,20 @@ export default {
     },
     // 开始录像
     start(data) {
-      axios.get('http://39.104.53.187:10810/nvc/server/api/v1/startrecord', {
+      this.diaIsShow = false
+      axios.get('http://39.104.53.187:10810/nvc/' + this.level + '/api/v1/startrecord', {
         params: {
           channel: this.formData.line,
           duration: this.formData.recordtime,
           savedays: this.formData.alltime
         }
       }).then(response => {
-        // 请求成功
         const res = response.data.EasyDarwin.Header
-        console.log(res)
+        if (res.ErrorNum !== '200') return this.$message.error('录像失败')
+        // 修改成功的提示
+        else this.$message.success('录像成功')
+        this.searchTab() // 重新获取用户数据
+        // 请求成功
       }).catch(error => {
         // 请求失败，
         console.log(error)
@@ -276,24 +302,21 @@ export default {
     },
     // 获取录像
     searchTab() {
-      axios.get('http://39.104.53.187:10810/nvc/server/api/v1/record/querydaily', {
+      axios.get('http://39.104.53.187:10810/nvc/' + this.level + '/api/v1/record/querydaily', {
         params: {
           id: this.sch_status,
           period: this.data
         }
       }).then(res => {
         console.log(res)
-        console.log(res.data.list.[0].hls)
         this.allList = res.data.list
         this.schArr = this.allList
         this.getPageData()
         this.total = res.data.total
-        console.log(this.allList)
-        this.$message.error(res)
       })
         .catch(error => {
-          console.log('hh' + error.message)
-          this.$message.error(error.message)
+          console.log(error.message)
+          if (error.message === 'Request failed with status code 400') return this.$message.error('当前设备不在线')
         })
     }
   }

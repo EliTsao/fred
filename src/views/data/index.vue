@@ -3,17 +3,24 @@
     <el-card class="anoCard">
       <div slot="header">
         <span>实时数据查询</span>
-        <div class="block">
-          <el-date-picker
-            v-model="value1"
-            type="datetimerange"
-            start-placeholder="开始日期"
-            end-placeholder="结束日期"
-            :default-time="['12:00:00']"
+        <el-date-picker
+          v-model="value1"
+          type="datetimerange"
+          start-placeholder="开始日期"
+          end-placeholder="结束日期"
+          :default-time="['12:00:00']"
+        />
+        <el-select v-model="value" placeholder="请选择机器人">
+          <el-option
+            v-for="item in options"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value"
           />
-        </div>
+        </el-select>
+
         <!-- <el-date-picker /> -->
-        <div ref="chart" style="height: 600px" />
+        <div ref="chart" style="height: 80vh" />
       </div>
     </el-card>
   </div>
@@ -48,6 +55,14 @@ export default {
   },
   data() {
     return {
+      options: [{
+        value: '1',
+        label: '1号机器人'
+      }, {
+        value: '2',
+        label: '2号机器人'
+      }],
+      value: '1',
       value1: '',
       chart: null,
       MapList: [],
@@ -83,8 +98,7 @@ export default {
   methods: {
     getLineList() {
       this.loading = true
-      listLine(
-        this.queryParams).then(response => {
+      listLine(this.queryParams).then(response => {
         this.MapList = response.data
         const MapList = this.MapList
         if (MapList) {
@@ -222,6 +236,7 @@ export default {
         }
         ]
       })
+      window.addEventListener('resize', () => { this.chart.resize() })
     }
   }
 }
