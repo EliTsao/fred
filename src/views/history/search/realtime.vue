@@ -15,10 +15,11 @@
         </el-select>
         <el-date-picker
           v-model="value1"
-          type="daterange"
-          range-separator="至"
+          value-format="yyyy-MM-dd HH:mm:ss"
+          type="datetimerange"
           start-placeholder="开始日期"
           end-placeholder="结束日期"
+          :default-time="['12:00:00']"
         />
         <el-button
           type="primary"
@@ -57,16 +58,17 @@
 
 <script>
 import { robotData, excelDow } from '@/api/history'
+import moment from 'moment'
 
 export default {
   data() {
     return {
       total: 0,
+      value1: [],
       totalPage: 1,
       tableData: [],
       allList: [],
       schArr: [],
-      value1: '',
       sch_order: '',
       sch_status: null,
       sch_date: null,
@@ -99,6 +101,8 @@ export default {
     }
   },
   created() {
+    this.value1.push(moment().add(-6, 'hours').format('YYYY-MM-DD HH:mm:ss'))
+    this.value1.push(moment().format('YYYY-MM-DD HH:mm:ss'))
     this.robotData()
   },
   methods: {

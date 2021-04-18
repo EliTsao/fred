@@ -173,8 +173,8 @@ export default {
       videoUrl3: null,
       videoUrl4: null,
       id: null,
-      robotName: null,
-      networkState: null,
+      robotName: '',
+      networkState: '',
       serialNumber: null,
       channels: '',
       channelNum: null,
@@ -195,11 +195,17 @@ export default {
         }
       ],
       options: [{
-        value: '1',
+        value: '2',
         label: '主摄像头'
       }, {
-        value: '2',
+        value: '1',
         label: '热成像图'
+      }, {
+        value: '3',
+        label: '前轮摄像头'
+      }, {
+        value: '4',
+        label: '后轮摄像头'
       }],
       value: '',
       Robot_Selected: '机器人',
@@ -307,7 +313,10 @@ export default {
           id: this.id
         }).then(res => {
           if (res.data.networkState === '离线') {
-            this.robotData = null
+            this.robotData.walkDirection = null
+            this.robotData.robotPower = null
+            this.robotData.workState = null
+            this.robotData.walkPattern = null
           }
           console.log(res)
           this.robotName = res.data.robotName

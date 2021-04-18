@@ -2,9 +2,9 @@
   <div :class="className" :style="{height:height,width:width}">
     <el-card class="anoCard">
       <div slot="header">
-        <span>实时数据查询</span>
         <el-date-picker
           v-model="value1"
+          value-format="yyyy-MM-dd HH:mm:ss"
           type="datetimerange"
           start-placeholder="开始日期"
           end-placeholder="结束日期"
@@ -19,7 +19,7 @@
           />
         </el-select>
 
-        <!-- <el-date-picker /> -->
+        <el-button type="primary" @click=" getLineList">确定</el-button>
         <div ref="chart" style="height: 80vh" />
       </div>
     </el-card>
@@ -32,6 +32,7 @@ import echarts from 'echarts'
 require('echarts/theme/macarons') // echarts theme
 import resize from '../../components/Charts/mixins/resize'
 import { listLine } from '@/api/data'
+import moment from 'moment'
 
 export default {
   mixins: [resize],
@@ -56,20 +57,26 @@ export default {
   data() {
     return {
       options: [{
-        value: '1',
-        label: '1号机器人'
+        value: '一号机器人',
+        label: '一号机器人'
       }, {
-        value: '2',
-        label: '2号机器人'
+        value: '二号机器人',
+        label: '二号机器人'
       }],
-      value: '1',
-      value1: '',
+      value: '一号机器人',
+      value1: [],
       chart: null,
       MapList: [],
       rows: [],
       LineList: [],
       time: [],
       humidity: [],
+      endTime: [],
+      startTime: [],
+      pickdate: {
+        startTime: '',
+        endTime: ''
+      },
       environmentTemperature: [],
       power: [],
       queryParams: {
@@ -93,12 +100,21 @@ export default {
     this.chart = null
   },
   created() {
+    this.value1.push(moment().add(-6, 'hours').format('YYYY-MM-DD HH:mm:ss'))
+    this.value1.push(moment().format('YYYY-MM-DD HH:mm:ss'))
     this.getLineList()
   },
   methods: {
     getLineList() {
       this.loading = true
-      listLine(this.queryParams).then(response => {
+      this.pickdate.startTime = this.value1[0]
+      this.pickdate.endTime = this.value1[1]
+      listLine({
+        robotName: this.value,
+        endTime: this.pickdate.endTime,
+        startTime: this.pickdate.startTime
+
+      }).then(response => {
         this.MapList = response.data
         const MapList = this.MapList
         if (MapList) {

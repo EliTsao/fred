@@ -5,8 +5,14 @@
         <span>图片查询</span>
       </div>
       <div class="searchDiv">
-        <el-input v-model="name" placeholder="请输入机器人名称" style="width: 200px" />
-        <el-input v-model="user" placeholder="请输入操作人信息" style="width: 200px" />
+        <el-select v-model="robot" placeholder="请选择机器人">
+          <el-option
+            v-for="item in option"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value"
+          />
+        </el-select>
         <el-date-picker
           v-model="value1"
           type="daterange"
@@ -25,7 +31,7 @@
         <el-table-column prop="lineName" label="所属线路" />
         <el-table-column prop="robotName" label="机器人名称" />
         <el-table-column prop="createTime" label="创建时间" />
-        <el-table-column prop="userName" label="操作人员" />
+        <el-table-column prop="cameraNumber" label="图片类型" />
         <el-table-column show-overflow-tooltip label="操作" width="200">
           <template #default="{ row }">
             <el-button type="text" @click="open(row)">查看</el-button>
@@ -49,15 +55,17 @@
 </template>
 
 <script>
-import { imageData } from '@/api/history'
+import { imageData, handleDelete } from '@/api/history'
 import { mapGetters } from 'vuex'
 import axios from 'axios'
 
 export default {
   data() {
     return {
-      value1: '',
+      value1: [new Date().setTime(new Date().getTime()-24*60*60*1000), new Date()],
+      robot: '',
       user: '',
+      ids: '',
       name: '',
       total: 0,
       totalPage: 1,
@@ -66,6 +74,14 @@ export default {
       imageList: [],
       schArr: [],
       sch_order: '',
+      option: [{
+        value: '1',
+        label: '一号机器人'
+      }, {
+        value: '2',
+        label: '二号机器人'
+      }],
+      value: '',
       sch_status: null,
       sch_date: null,
       currentPage: 1,
@@ -152,6 +168,13 @@ export default {
           this.$message.error(error.message)
         })
     },
+    // 删除图片
+    // handleDelete(row) {
+    //   const id = row.id
+    //   handleDelete({
+    //     ids: id
+    //   })
+    // },
     getPageData() {
       const start = (this.currentPage - 1) * this.pageSize
       const end = start + this.pageSize

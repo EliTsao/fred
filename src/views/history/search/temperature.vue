@@ -13,10 +13,8 @@
             :value="item.value"
           />
         </el-select>
-        <el-input v-model="user" placeholder="请输入操作人信息" style="width:200px" />
         <el-date-picker
           v-model="value1"
-          value-format="yyyy-MM-dd HH:mm:ss"
           type="daterange"
           range-separator="至"
           start-placeholder="开始日期"
@@ -36,7 +34,6 @@
       <el-table :data="tableData" border stripe>
         <el-table-column prop="lineName" label="线路名称" />
         <el-table-column prop="robotName" label="机器人名称" />
-        <el-table-column prop="towerNumber" label="塔号" />
         <el-table-column prop="detectionTemperature" label="测温温度值" />
         <el-table-column prop="robotPosition" label="距离" />
         <el-table-column prop="environmentTemperature" label="环境温度" />
@@ -70,7 +67,7 @@ export default {
       },
       name: '',
       user: '',
-      value1: '',
+      value1: [new Date().setTime(new Date().getTime() - 6 * 60 * 1000), new Date()],
       pickdate: {
         startTime: '',
         endTime: ''

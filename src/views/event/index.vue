@@ -19,14 +19,12 @@
           />
         </el-select>
         <el-date-picker
-          v-model="value2"
+          v-model="value1"
           value-format="yyyy-MM-dd HH:mm:ss"
           type="datetimerange"
-          :picker-options="pickerOptions"
-          range-separator="至"
           start-placeholder="开始日期"
           end-placeholder="结束日期"
-          align="right"
+          :default-time="['12:00:00']"
         />
         <el-input v-model="input" placeholder="请输入操作人员" />
         <el-button
@@ -62,38 +60,12 @@
 </template>
 
 <script>
+import moment from 'moment'
 import { event } from '@/api/event'
 export default {
   data() {
     return {
-      pickerOptions: {
-        shortcuts: [{
-          text: '最近一周',
-          onClick(picker) {
-            const end = new Date()
-            const start = new Date()
-            start.setTime(start.getTime() - 3600 * 1000 * 24 * 7)
-            picker.$emit('pick', [start, end])
-          }
-        }, {
-          text: '最近一个月',
-          onClick(picker) {
-            const end = new Date()
-            const start = new Date()
-            start.setTime(start.getTime() - 3600 * 1000 * 24 * 30)
-            picker.$emit('pick', [start, end])
-          }
-        }, {
-          text: '最近三个月',
-          onClick(picker) {
-            const end = new Date()
-            const start = new Date()
-            start.setTime(start.getTime() - 3600 * 1000 * 24 * 90)
-            picker.$emit('pick', [start, end])
-          }
-        }]
-      },
-      value2: '',
+      value1: [],
       pickdate: {
         startTime: '',
         endTime: ''
@@ -127,6 +99,8 @@ export default {
     }
   },
   created() {
+    this.value1.push(moment().add(-6, 'hours').format('YYYY-MM-DD HH:mm:ss'))
+    this.value1.push(moment().format('YYYY-MM-DD HH:mm:ss'))
     this.event()
   },
   methods: {
@@ -139,8 +113,8 @@ export default {
       this.getPageData()
     },
     event() {
-      this.pickdate.startTime = this.value2[0]
-      this.pickdate.endTime = this.value2[1]
+      this.pickdate.startTime = this.value1[0]
+      this.pickdate.endTime = this.value1[1]
       event({
         startTime: this.pickdate.startTime,
         endTime: this.pickdate.endTime,

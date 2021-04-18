@@ -46,5 +46,4 @@ export function updateUser(data) {
     method: 'put',
     data
   })
-  
 }

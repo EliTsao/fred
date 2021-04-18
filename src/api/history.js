@@ -39,3 +39,11 @@ export function tmData(params) {
     responseType: 'blob'
   })
 }
+
+export function handleDelete(params) {
+  return request({
+    url: 'image/deleteImage',
+    method: 'get',
+    params
+  })
+}
